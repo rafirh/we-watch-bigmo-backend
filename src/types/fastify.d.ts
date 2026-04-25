@@ -1,17 +1,18 @@
 import "@fastify/jwt";
 import { FastifyRequest, FastifyReply } from "fastify";
+import { Role } from "../generated/prisma/enums";
 
 declare module "@fastify/jwt" {
   interface FastifyJWT {
     payload: {
       sub: string;
       username: string;
-      role: "ADMIN" | "USER";
+      role: Role;
     };
     user: {
       sub: string;
       username: string;
-      role: "ADMIN" | "USER";
+      role: Role;
     };
   }
 }
