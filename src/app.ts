@@ -1,3 +1,4 @@
+import { z } from "zod";
 import Fastify, { FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
@@ -70,6 +71,22 @@ export async function buildApp(): Promise<FastifyInstance> {
     env: env.APP_ENV,
     docs: "/docs",
   }));
+
+  app.get(
+    "/health",
+    {
+      schema: {
+        tags: ["Health"],
+        response: {
+          200: z.object({
+            status: z.literal("ok"),
+            uptime: z.number(),
+          }),
+        },
+      },
+    },
+    async () => ({ status: "ok" as const, uptime: process.uptime() }),
+  );
 
   return app;
 }
