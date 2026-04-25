@@ -62,6 +62,11 @@ export const userController = {
     return reply.send(result);
   },
 
+  async getCurrentTodos(request: FastifyRequest, reply: FastifyReply) {
+    const result = await userService.getCurrentTodos(request.user.sub);
+    return reply.send(result);
+  },
+
   async updateMyProfile(
     request: FastifyRequest<{ Body: UpdateMyProfileInput }>,
     reply: FastifyReply,

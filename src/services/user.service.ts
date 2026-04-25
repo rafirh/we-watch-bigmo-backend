@@ -64,6 +64,10 @@ export const userService = {
     return visit;
   },
 
+  async getCurrentTodos(userId: string) {
+    return userRepository.findCurrentTodosByUserId(userId);
+  },
+
   async updateMyProfile(userId: string, input: UpdateMyProfileInput) {
     const currentUser = await userRepository.findById(userId);
     if (!currentUser) {

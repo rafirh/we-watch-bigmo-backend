@@ -284,6 +284,32 @@ export const userRepository = {
     });
   },
 
+  async findCurrentTodosByUserId(userId: string) {
+    const latestVisit = await prisma.visit.findFirst({
+      where: { userId },
+      orderBy: [
+        { tanggalKunjungan: "desc" },
+        { createdAt: "desc" },
+      ],
+      select: {
+        followUpPlans: {
+          orderBy: { urutan: "asc" },
+          select: {
+            id: true,
+            visitId: true,
+            urutan: true,
+            keterangan: true,
+            status: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+
+    return latestVisit?.followUpPlans ?? [];
+  },
+
   updateMyProfile(userId: string, data: { fullName: string; username: string }) {
     return prisma.user.update({
       where: { id: userId },

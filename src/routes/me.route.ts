@@ -9,6 +9,7 @@ import {
   meVisitsResponseSchema,
   visitIdParamSchema,
   visitDetailResponseSchema,
+  currentTodosResponseSchema,
 } from "../models/visit.model";
 
 export async function meRoutes(app: FastifyInstance) {
@@ -25,6 +26,19 @@ export async function meRoutes(app: FastifyInstance) {
       },
     },
     userController.getLastVisit,
+  );
+
+  r.get(
+    "/current-todos",
+    {
+      onRequest: [app.authenticate],
+      schema: {
+        tags: ["Users"],
+        security: [{ bearerAuth: [] }],
+        response: { 200: currentTodosResponseSchema },
+      },
+    },
+    userController.getCurrentTodos,
   );
 
   r.get(
