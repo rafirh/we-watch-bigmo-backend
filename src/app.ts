@@ -19,6 +19,7 @@ import { authPlugin } from "./middlewares/auth.middleware";
 import { chatRoutes } from "./routes/chat.route";
 import { meRoutes } from "./routes/me.route";
 import { todoRoutes } from "./routes/todo.route";
+import { classificationRoutes } from "./routes/classification.route";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -57,7 +58,10 @@ export async function buildApp(): Promise<FastifyInstance> {
         description: "API documentation for Narabuna",
         version: "1.0.0",
       },
-      servers: [{ url: `http://localhost:${env.PORT}` }, { url: 'https://hackfest.iccn.or.id' }],
+      servers: [
+        { url: `http://localhost:${env.PORT}` },
+        { url: "https://hackfest.iccn.or.id" },
+      ],
       components: {
         securitySchemes: {
           bearerAuth: {
@@ -91,6 +95,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(meRoutes, { prefix: "/me" });
   await app.register(todoRoutes, { prefix: "/todos" });
   await app.register(chatRoutes, { prefix: "/chat" });
+  await app.register(classificationRoutes);
 
   return app;
 }
