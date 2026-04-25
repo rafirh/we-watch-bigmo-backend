@@ -11,6 +11,11 @@ const envSchema = z.object({
   ADMIN_EMAIL: z.email().min(1),
   ADMIN_PASSWORD: z.string().min(8),
   ADMIN_USERNAME: z.string().min(3),
+
+  OPENAI_API_URL: z.string().min(1),
+  OPENAI_API_KEY: z.string().min(1),
+  OPENAI_MODEL: z.string().default("gpt-4o-mini"),
+  CHAT_SESSION_TTL_SECONDS: z.coerce.number().default(60 * 60 * 24 * 7),
 });
 
 const parsed = envSchema.safeParse(process.env);
