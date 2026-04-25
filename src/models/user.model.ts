@@ -46,3 +46,15 @@ export const userListResponseSchema = z.object({
 export const userIdParamSchema = z.object({
   id: z.string(),
 });
+
+export const updateMyProfileInputSchema = z.object({
+  fullName: z.string().min(1).max(100),
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_]+$/, {
+      message: "Username can only contain letters, numbers, and underscores",
+    }),
+});
+export type UpdateMyProfileInput = z.infer<typeof updateMyProfileInputSchema>;

@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { userService } from "../services/user.service";
+import { UpdateMyProfileInput } from "../models/user.model";
 
 export const userController = {
   async list(request: FastifyRequest, reply: FastifyReply) {
@@ -53,6 +54,14 @@ export const userController = {
       request.user.sub,
     );
 
+    return reply.send(result);
+  },
+
+  async updateMyProfile(
+    request: FastifyRequest<{ Body: UpdateMyProfileInput }>,
+    reply: FastifyReply,
+  ) {
+    const result = await userService.updateMyProfile(request.user.sub, request.body);
     return reply.send(result);
   },
 };

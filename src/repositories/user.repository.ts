@@ -263,6 +263,16 @@ export const userRepository = {
     });
   },
 
+  updateMyProfile(userId: string, data: { fullName: string; username: string }) {
+    return prisma.user.update({
+      where: { id: userId },
+      data: {
+        fullName: data.fullName,
+        username: data.username,
+      },
+    });
+  },
+
   deleteById(id: string) {
     return prisma.user.delete({ where: { id } });
   },

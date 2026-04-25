@@ -2,6 +2,10 @@ import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { userController } from "../controllers/user.controller";
 import {
+  updateMyProfileInputSchema,
+  userResponseSchema,
+} from "../models/user.model";
+import {
   meVisitsResponseSchema,
   visitIdParamSchema,
   visitDetailResponseSchema,
@@ -35,5 +39,19 @@ export async function meRoutes(app: FastifyInstance) {
       },
     },
     userController.getVisitDetail,
+  );
+
+  r.put(
+    "/profile",
+    {
+      onRequest: [app.authenticate],
+      schema: {
+        tags: ["Users"],
+        security: [{ bearerAuth: [] }],
+        body: updateMyProfileInputSchema,
+        response: { 200: userResponseSchema },
+      },
+    },
+    userController.updateMyProfile,
   );
 }
