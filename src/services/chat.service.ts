@@ -38,7 +38,10 @@ export const chatService = {
       }
     }
 
-    const userMsg: ChatMessage = { role: "user", content: userMessage };
+    const userMsg: ChatMessage = {
+      role: "user",
+      content: `/no_think ${userMessage}`,
+    };
     await chatCacheRepository.append(activeSessionId, userMsg);
 
     const reply = await openaiService.complete([...history, userMsg]);
