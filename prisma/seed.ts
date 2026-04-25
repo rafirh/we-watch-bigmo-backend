@@ -1001,6 +1001,35 @@ async function main() {
   })
 
   console.log(`✅ Admin — ${admin.fullName}`)
+
+  const nurses = [
+    {
+      nik: '3578124501980001',
+      fullName: 'Siti Aminah',
+      username: 'siti.aminah',
+      email: 'siti.aminah@anc.com',
+    },
+    {
+      nik: '3578124601990002',
+      fullName: 'Budi Santoso',
+      username: 'budi.santoso',
+      email: 'budi.santoso@anc.com',
+    },
+  ]
+
+  for (const nurse of nurses) {
+    const created = await prisma.user.upsert({
+      where: { email: nurse.email },
+      update: {},
+      create: {
+        ...nurse,
+        password: await hashPassword('nurse123'),
+        role: 'NURSE',
+      },
+    })
+
+    console.log(`✅ Nurse — ${created.fullName}`)
+  }
   console.log('\n🎉 Seeding selesai!')
 }
 
