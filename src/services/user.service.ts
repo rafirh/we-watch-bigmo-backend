@@ -1,5 +1,6 @@
 import { toUserResponse } from "../dto/user.dto";
 import { userRepository } from "../repositories/user.repository";
+import { UpdateMyProfileInput } from "../models/user.model";
 
 export const userService = {
   async list(page = 1, pageSize = 50) {
@@ -52,5 +53,28 @@ export const userService = {
     }
 
     return visit;
+  },
+
+  async updateMyProfile(userId: string, input: UpdateMyProfileInput) {
+    const currentUser = await userRepository.findById(userId);
+    if (!currentUser) {
+      throw Object.assign(new Error("User not found"), { statusCode: 404 });
+    }
+
+    if (input.username !== currentUser.username) {
+      const usernameOwner = await userRepository.findByUsername(input.username);
+      if (usernameOwner) {
+        throw Object.assign(new Error("Username already taken"), {
+          statusCode: 409,
+        });
+      }
+    }
+
+    const updatedUser = await userRepository.updateMyProfile(userId, {
+      fullName: input.fullName,
+      username: input.username,
+    });
+
+    return toUserResponse(updatedUser);
   },
 };
