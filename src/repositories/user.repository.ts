@@ -83,6 +83,26 @@ export const userRepository = {
     });
   },
 
+  findVisitDetailById(visitId: string, userId: string) {
+    return prisma.visit.findFirst({
+      where: {
+        id: visitId,
+        userId,
+      },
+      include: {
+        motherExamination: true,
+        fetalExamination: true,
+        labExamination: true,
+        fourTMonitoring: true,
+        supplementaryFood: true,
+        otherCondition: true,
+        followUpPlans: {
+          orderBy: { urutan: "asc" },
+        },
+      },
+    });
+  },
+
   deleteById(id: string) {
     return prisma.user.delete({ where: { id } });
   },

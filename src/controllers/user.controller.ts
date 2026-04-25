@@ -43,4 +43,16 @@ export const userController = {
 
     return reply.send(result);
   },
+
+  async getVisitDetail(
+    request: FastifyRequest<{ Params: { visitId: string } }>,
+    reply: FastifyReply,
+  ) {
+    const result = await userService.getVisitDetailById(
+      request.params.visitId,
+      request.user.sub,
+    );
+
+    return reply.send(result);
+  },
 };

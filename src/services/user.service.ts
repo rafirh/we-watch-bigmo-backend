@@ -44,4 +44,13 @@ export const userService = {
 
     return todo;
   },
+
+  async getVisitDetailById(visitId: string, userId: string) {
+    const visit = await userRepository.findVisitDetailById(visitId, userId);
+    if (!visit) {
+      throw Object.assign(new Error("Visit not found"), { statusCode: 404 });
+    }
+
+    return visit;
+  },
 };

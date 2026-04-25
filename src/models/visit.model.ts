@@ -124,6 +124,10 @@ export const todoIdParamSchema = z.object({
   todoId: z.string().uuid(),
 });
 
+export const visitIdParamSchema = z.object({
+  visitId: z.string().uuid(),
+});
+
 export const updateTodoStatusBodySchema = z.object({
   status: z.boolean(),
 });
@@ -151,6 +155,8 @@ const visitWithRelationsSchema = z.object({
   otherCondition: otherConditionSchema.nullable(),
   followUpPlans: z.array(followUpPlanSchema),
 });
+
+export const visitDetailResponseSchema = visitWithRelationsSchema;
 
 const userDetailSchema = z.object({
   id: z.string(),
