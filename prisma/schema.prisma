@@ -93,6 +93,7 @@ model User {
   prePregnancyData PrePregnancyData?
   medicalHistories MedicalHistory[]
   visits           Visit[]
+  chatSessions     ChatSession[]
 }
 
 // ─────────────────────────────────────────────
@@ -145,8 +146,8 @@ model ObstetricHistory {
   abortus                    Int
   hpht                       DateTime // Hari Pertama Haid Terakhir
   hplTaksiran                DateTime // Hari Perkiraan Lahir
-  jarakKehamilanBulan        Int?     // dalam bulan
-  jarakKehamilanInterpretasi String?  // "Aman" / "Berisiko"
+  jarakKehamilanBulan        Int? // dalam bulan
+  jarakKehamilanInterpretasi String? // "Aman" / "Berisiko"
   jarakKehamilanKeterangan   String?
 
   createdAt DateTime @default(now())
@@ -162,11 +163,11 @@ model PrePregnancyData {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  beratBadanKg        Float
-  tinggiBadanCm       Float
-  imt                 Float
-  imtInterpretasi     String? // Normal / Kurus / Gemuk / Obesitas
-  imtKeterangan       String?
+  beratBadanKg    Float
+  tinggiBadanCm   Float
+  imt             Float
+  imtInterpretasi String? // Normal / Kurus / Gemuk / Obesitas
+  imtKeterangan   String?
 
   targetKenaikanBbMin Float?
   targetKenaikanBbMax Float?
@@ -188,7 +189,7 @@ model MedicalHistory {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  kategori   String  // "penyakit_menular" | "penyakit_keluarga" | "komplikasi_kehamilan"
+  kategori   String // "penyakit_menular" | "penyakit_keluarga" | "komplikasi_kehamilan"
   nama       String
   kodeIcd10  String?
   keterangan String?
@@ -290,9 +291,9 @@ model FetalExamination {
   visitId String @unique
   visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Cascade)
 
-  djjBpm              Int?
-  djjInterpretasi     String?
-  djjKeterangan       String?
+  djjBpm          Int?
+  djjInterpretasi String?
+  djjKeterangan   String?
 
   jumlahJanin             Int     @default(1)
   presentasi              String?
@@ -410,4 +411,33 @@ model OtherCondition {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum ChatRole {
+  SYSTEM
+  USER
+  ASSISTANT
+}
+
+model ChatSession {
+  id        String        @id @default(uuid())
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  title     String?
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([userId])
+}
+
+model ChatMessage {
+  id        String      @id @default(uuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      ChatRole
+  content   String      @db.Text
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
 }
