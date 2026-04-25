@@ -52,7 +52,7 @@ export async function buildApp(): Promise<FastifyInstance> {
         description: "API documentation for Narabuna",
         version: "1.0.0",
       },
-      servers: [{ url: `http://localhost:${env.PORT}` }],
+      servers: [{ url: `http://localhost:${env.PORT}` }, { url: 'https://hackfest.iccn.or.id' }],
       components: {
         securitySchemes: {
           bearerAuth: {
