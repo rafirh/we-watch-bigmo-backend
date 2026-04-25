@@ -16,6 +16,7 @@ import { userRoutes } from "./routes/user.route";
 import { healthRoutes } from "./routes/health.route";
 import { registerErrorHandler } from "./middlewares/error.middleware";
 import { authPlugin } from "./middlewares/auth.middleware";
+import { chatRoutes } from "./routes/chat.route";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -83,6 +84,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(healthRoutes);
   await app.register(authRoutes, { prefix: "/auth" });
   await app.register(userRoutes, { prefix: "/users" });
+  await app.register(chatRoutes, { prefix: "/chat" });
 
   return app;
 }
