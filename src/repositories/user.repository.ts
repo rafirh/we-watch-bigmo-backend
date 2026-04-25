@@ -26,6 +26,30 @@ export const userRepository = {
     });
   },
 
+  findMeDetailsById(userId: string) {
+    return prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        userDetail: true,
+        obstetricHistory: true,
+        prePregnancyData: true,
+        medicalHistories: true,
+        visits: {
+          select: {
+            trimester: true,
+            tanggalKunjungan: true,
+            supplementaryFood: true,
+            keteranganLabel: true,
+            label: true,
+            otherCondition: true,
+            labExamination: true,
+            motherExamination: true,
+          },
+        },
+      },
+    });
+  },
+
   create(data: Prisma.UserCreateInput): Promise<User> {
     return prisma.user.create({ data });
   },

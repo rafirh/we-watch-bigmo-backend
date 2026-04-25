@@ -3,6 +3,7 @@ import { openaiService } from "./openai.service";
 import { env } from "../config/env";
 import { ChatMessage } from "../models/chat.model";
 import { chatCacheRepository } from "../repositories/chatChace.repository";
+import { userRepository } from "../repositories/user.repository";
 
 export const chatService = {
   async sendMessage(
@@ -15,16 +16,17 @@ export const chatService = {
 
     if (!sessionId) {
       const session = await chatRepository.createSession(userId);
+      const allUserDetail = await userRepository.findMeDetailsById(userId!);
 
       activeSessionId = session.id;
 
-      // Inisialisasi DATA PASIEN SAAT INI
-      // const systemMsg: ChatMessage = {
-      //   role: "system",
-      //   content: env.CHAT_SYSTEM_PROMPT,
-      // };
-      // await chatCacheRepository.append(activeSessionId, systemMsg);
-      // history = [systemMsg];
+      const initialSystemMsg: ChatMessage = {
+        role: "system",
+        content: `User pregnancy details and journey: ${JSON.stringify(allUserDetail)}`,
+      };
+
+      await chatCacheRepository.append(activeSessionId, initialSystemMsg);
+      history = [initialSystemMsg];
     } else {
       activeSessionId = sessionId;
       history = await chatService.loadHistory(sessionId);
