@@ -13,6 +13,7 @@ export const chatController = {
       request.body.sessionId,
       request.body.message,
       userId,
+      request.body.useUserData,
     );
 
     return reply.send(result);

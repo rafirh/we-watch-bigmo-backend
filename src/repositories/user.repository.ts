@@ -29,22 +29,158 @@ export const userRepository = {
   findMeDetailsById(userId: string) {
     return prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        userDetail: true,
-        obstetricHistory: true,
-        prePregnancyData: true,
-        medicalHistories: true,
-        visits: {
+      select: {
+        fullName: true,
+        // ── Data Diri yang Relevan Medis ──────────────────
+        userDetail: {
           select: {
-            trimester: true,
-            tanggalKunjungan: true,
-            supplementaryFood: true,
-            keteranganLabel: true,
-            label: true,
-            otherCondition: true,
-            labExamination: true,
-            motherExamination: true,
+            tanggalLahir: true,
+            statusPernikahan: true,
           },
+        },
+        // ── Riwayat Obstetri ──────────────────────────────
+        obstetricHistory: {
+          select: {
+            gravida: true,
+            partus: true,
+            abortus: true,
+            hpht: true,
+            hplTaksiran: true,
+            jarakKehamilanBulan: true,
+            jarakKehamilanInterpretasi: true,
+            jarakKehamilanKeterangan: true,
+          },
+        },
+        // ── Data Pra Kehamilan ────────────────────────────
+        prePregnancyData: {
+          select: {
+            beratBadanKg: true,
+            tinggiBadanCm: true,
+            imt: true,
+            imtInterpretasi: true,
+            imtKeterangan: true,
+            targetKenaikanBbMin: true,
+            targetKenaikanBbMax: true,
+            imunisasiTtStatus: true,
+            merokok: true,
+            konsumsiAlkohol: true,
+          },
+        },
+        // ── Riwayat Penyakit ──────────────────────────────
+        medicalHistories: {
+          select: {
+            kategori: true,
+            nama: true,
+            kodeIcd10: true,
+            keterangan: true,
+          },
+        },
+        // ── Kunjungan ANC ─────────────────────────────────
+        visits: {
+          take: 1,
+          select: {
+            label: true,
+            keteranganLabel: true,
+            tanggalKunjungan: true,
+            trimester: true,
+            usiaKehamilanMinggu: true,
+            faskes: true,
+            kesanKlinis: true,
+            // Pemeriksaan Ibu
+            motherExamination: {
+              select: {
+                beratBadanKg: true,
+                lilaCm: true,
+                lilaInterpretasi: true,
+                lilaKeterangan: true,
+                tinggiUteriCm: true,
+                tinggiUteriInterpretasi: true,
+                tinggiUteriKeterangan: true,
+                tdSistolik: true,
+                tdDiastolik: true,
+                tdInterpretasi: true,
+                tdKeterangan: true,
+                nadi: true,
+                nadiInterpretasi: true,
+                suhu: true,
+                suhuInterpretasi: true,
+                pernapasan: true,
+                pernapasanInterpretasi: true,
+                golonganDarah: true,
+                rhesus: true,
+                // Pemeriksaan fisik — hanya yang abnormal biasanya dicatat
+                konjungtiva: true,
+                sklera: true,
+                tungkai: true,
+              },
+            },
+            // Pemeriksaan Janin
+            fetalExamination: {
+              select: {
+                djjBpm: true,
+                djjInterpretasi: true,
+                djjKeterangan: true,
+                jumlahJanin: true,
+                presentasi: true,
+                taksiranBeratJaninGram: true,
+                taksiranBeratKeterangan: true,
+                usgLetakJanin: true,
+                usgKeterangan: true,
+              },
+            },
+            // Lab / 10T
+            labExamination: {
+              select: {
+                hemoglobinGdL: true,
+                hemoglobinInterpretasi: true,
+                hemoglobinKeterangan: true,
+                skriningHiv: true,
+                skriningSifilis: true,
+                skriningHepB: true,
+                gulaDarahMgdL: true,
+                gulaDarahInterpretasi: true,
+                gulaDarahKeterangan: true,
+                proteinUrinMgdL: true,
+                proteinUrinInterpretasi: true,
+                proteinUrinKeterangan: true,
+              },
+            },
+            // Pemantauan 4T
+            fourTMonitoring: {
+              select: {
+                terlaluMuda: true,
+                terlaluTua: true,
+                terlaluRapat: true,
+                terlaluSering: true,
+                keterangan: true,
+              },
+            },
+            // Makanan Tambahan
+            supplementaryFood: {
+              select: {
+                diberikanMt: true,
+                jenisMt: true,
+              },
+            },
+            // Rencana Tindak Lanjut
+            followUpPlans: {
+              select: {
+                urutan: true,
+                keterangan: true,
+                status: true,
+              },
+              orderBy: { urutan: "asc" },
+            },
+            // Kondisi Lain
+            otherCondition: {
+              select: {
+                disabilitas: true,
+                ikutKelasIbuHamil: true,
+                keterangan: true,
+              },
+            },
+          },
+          orderBy: { tanggalKunjungan: "asc" },
         },
       },
     });

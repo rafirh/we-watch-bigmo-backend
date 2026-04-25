@@ -10,23 +10,27 @@ export const chatService = {
     sessionId: string | null | undefined,
     userMessage: string,
     userId?: string | null,
+    useUserData = false,
   ): Promise<{ sessionId: string; response: string }> {
     let history: ChatMessage[] = [];
     let activeSessionId: string;
 
     if (!sessionId) {
       const session = await chatRepository.createSession(userId);
-      const allUserDetail = await userRepository.findMeDetailsById(userId!);
 
       activeSessionId = session.id;
 
-      const initialSystemMsg: ChatMessage = {
-        role: "system",
-        content: `User pregnancy details and journey: ${JSON.stringify(allUserDetail)}`,
-      };
+      if (useUserData) {
+        const userData = await userRepository.findMeDetailsById(userId!);
 
-      await chatCacheRepository.append(activeSessionId, initialSystemMsg);
-      history = [initialSystemMsg];
+        const systemMsg: ChatMessage = {
+          role: "system",
+          content: `DATA PASIEN SAAT INI:\n${JSON.stringify(userData)}`,
+        };
+
+        await chatCacheRepository.append(activeSessionId, systemMsg);
+        history = [systemMsg];
+      }
     } else {
       activeSessionId = sessionId;
       history = await chatService.loadHistory(sessionId);

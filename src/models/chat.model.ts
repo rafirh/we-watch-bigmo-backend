@@ -9,6 +9,7 @@ export type ChatMessage = z.infer<typeof chatMessageSchema>;
 export const sendMessageInputSchema = z.object({
   sessionId: z.uuid().nullish(),
   message: z.string().min(1).max(4000),
+  useUserData: z.boolean().default(false),
 });
 export type SendMessageInput = z.infer<typeof sendMessageInputSchema>;
 

@@ -5,19 +5,29 @@ import { ClassificationApiResponse } from "../models/classification.model";
 
 export const openaiService = {
   async complete(messages: ChatMessage[]): Promise<string> {
-    const response = await openai.chat.completions.create({
-      model: env.OPENAI_MODEL,
-      messages: messages.map((m) => ({ role: m.role, content: m.content })),
-      max_completion_tokens: 2048,
-      temperature: 0.3,
-    });
+    const response = await fetch(
+      `${env.OPENAI_API_URL}/api/v1/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: env.OPENAI_MODEL,
+          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          max_completion_tokens: 2048,
+          temperature: 1,
+          extra_body: {
+            thinking_budget: 512,
+          },
+        }),
+      },
+    );
+    const data = await response.json();
 
-    const reply = response.choices[0]?.message?.content;
-    if (!reply) {
-      throw Object.assign(new Error("Empty response from OpenAI"), {
-        statusCode: 502,
-      });
-    }
+    const reply = data.choices[0]?.message?.content;
+
     return reply;
   },
   async explainClassification(
