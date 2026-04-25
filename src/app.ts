@@ -1,4 +1,4 @@
-import Fastify, { FastifyInstance } from "fastify";
+import Fastify, { fastify, FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import swagger from "@fastify/swagger";
@@ -20,6 +20,8 @@ import { chatRoutes } from "./routes/chat.route";
 import { meRoutes } from "./routes/me.route";
 import { todoRoutes } from "./routes/todo.route";
 import { classificationRoutes } from "./routes/classification.route";
+import { consultationRoutes } from "./routes/consultation.route";
+import { consultationWsRoutes } from "./routes/consultationWs.route";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -60,7 +62,9 @@ export async function buildApp(): Promise<FastifyInstance> {
       },
       servers: [
         { url: `http://localhost:${env.PORT}` },
+        { url: `ws://localhost:${env.PORT}`, description: "WebSocket" },
         { url: "https://hackfest.iccn.or.id" },
+        { url: "ws://hackfest.iccn.or.id", description: "WebSocket" },
       ],
       components: {
         securitySchemes: {
@@ -83,6 +87,10 @@ export async function buildApp(): Promise<FastifyInstance> {
     },
   });
 
+  app.register(require("@fastify/websocket"), {
+    options: { maxPayload: 1048576 },
+  });
+
   app.get("/", async () => ({
     name: "Narabuna API",
     env: env.APP_ENV,
@@ -96,6 +104,9 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(todoRoutes, { prefix: "/todos" });
   await app.register(chatRoutes, { prefix: "/chat" });
   await app.register(classificationRoutes);
+
+  await app.register(consultationRoutes, { prefix: "/consultation" });
+  await app.register(consultationWsRoutes);
 
   return app;
 }

@@ -19,6 +19,9 @@ const envSchema = z.object({
 
   CLASSIFICATION_API_URL: z.url(),
   CLASSIFICATION_CACHE_TTL_SECONDS: z.coerce.number().default(60 * 60 * 24 * 7),
+
+  WS_HEARTBEAT_INTERVAL_MS: z.coerce.number().default(30000),
+  CONSULTATION_RECENT_MESSAGES_LIMIT: z.coerce.number().default(50),
 });
 
 const parsed = envSchema.safeParse(process.env);
