@@ -1,4 +1,3 @@
-import { z } from "zod";
 import Fastify, { FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
@@ -12,6 +11,11 @@ import {
 } from "fastify-type-provider-zod";
 
 import { env } from "./config/env";
+import { authRoutes } from "./routes/auth.route";
+import { userRoutes } from "./routes/user.route";
+import { healthRoutes } from "./routes/health.route";
+import { registerErrorHandler } from "./middlewares/error.middleware";
+import { authPlugin } from "./middlewares/auth.middleware";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -27,6 +31,8 @@ export async function buildApp(): Promise<FastifyInstance> {
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
+  registerErrorHandler(app);
+
   await app.register(cors, {
     origin: true,
     credentials: true,
@@ -36,6 +42,8 @@ export async function buildApp(): Promise<FastifyInstance> {
     secret: env.JWT_SECRET,
     sign: { expiresIn: env.JWT_EXPIRES_IN },
   });
+
+  await app.register(authPlugin);
 
   await app.register(swagger, {
     openapi: {
@@ -72,21 +80,9 @@ export async function buildApp(): Promise<FastifyInstance> {
     docs: "/docs",
   }));
 
-  app.get(
-    "/health",
-    {
-      schema: {
-        tags: ["Health"],
-        response: {
-          200: z.object({
-            status: z.literal("ok"),
-            uptime: z.number(),
-          }),
-        },
-      },
-    },
-    async () => ({ status: "ok" as const, uptime: process.uptime() }),
-  );
+  await app.register(healthRoutes);
+  await app.register(authRoutes, { prefix: "/auth" });
+  await app.register(userRoutes, { prefix: "/users" });
 
   return app;
 }
