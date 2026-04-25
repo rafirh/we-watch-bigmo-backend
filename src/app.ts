@@ -18,6 +18,7 @@ import { registerErrorHandler } from "./middlewares/error.middleware";
 import { authPlugin } from "./middlewares/auth.middleware";
 import { chatRoutes } from "./routes/chat.route";
 import { meRoutes } from "./routes/me.route";
+import { todoRoutes } from "./routes/todo.route";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -86,6 +87,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(authRoutes, { prefix: "/auth" });
   await app.register(userRoutes, { prefix: "/users" });
   await app.register(meRoutes, { prefix: "/me" });
+  await app.register(todoRoutes, { prefix: "/todos" });
   await app.register(chatRoutes, { prefix: "/chat" });
 
   return app;

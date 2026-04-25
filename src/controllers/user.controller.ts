@@ -27,4 +27,20 @@ export const userController = {
     const result = await userService.getMeVisits(request.user.sub);
     return reply.send(result);
   },
+
+  async updateTodoStatus(
+    request: FastifyRequest<{
+      Params: { todoId: string };
+      Body: { status: boolean };
+    }>,
+    reply: FastifyReply,
+  ) {
+    const result = await userService.updateTodoStatus(
+      request.params.todoId,
+      request.user.sub,
+      request.body.status,
+    );
+
+    return reply.send(result);
+  },
 };

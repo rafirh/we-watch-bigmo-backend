@@ -115,9 +115,20 @@ const followUpPlanSchema = z.object({
   visitId: z.string(),
   urutan: z.number(),
   keterangan: z.string(),
+  status: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
+
+export const todoIdParamSchema = z.object({
+  todoId: z.string().uuid(),
+});
+
+export const updateTodoStatusBodySchema = z.object({
+  status: z.boolean(),
+});
+
+export const todoResponseSchema = followUpPlanSchema;
 
 const visitWithRelationsSchema = z.object({
   id: z.string(),

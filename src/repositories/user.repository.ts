@@ -63,6 +63,26 @@ export const userRepository = {
     });
   },
 
+  async updateTodoStatus(todoId: string, userId: string, status: boolean) {
+    const todo = await prisma.followUpPlan.findFirst({
+      where: {
+        id: todoId,
+        visit: {
+          userId,
+        },
+      },
+    });
+
+    if (!todo) {
+      return null;
+    }
+
+    return prisma.followUpPlan.update({
+      where: { id: todoId },
+      data: { status },
+    });
+  },
+
   deleteById(id: string) {
     return prisma.user.delete({ where: { id } });
   },

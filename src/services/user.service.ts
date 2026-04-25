@@ -35,4 +35,13 @@ export const userService = {
       visits,
     };
   },
+
+  async updateTodoStatus(todoId: string, userId: string, status: boolean) {
+    const todo = await userRepository.updateTodoStatus(todoId, userId, status);
+    if (!todo) {
+      throw Object.assign(new Error("Todo not found"), { statusCode: 404 });
+    }
+
+    return todo;
+  },
 };
