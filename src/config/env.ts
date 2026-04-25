@@ -16,6 +16,9 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().min(1),
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),
   CHAT_SESSION_TTL_SECONDS: z.coerce.number().default(60 * 60 * 24 * 7),
+
+  CLASSIFICATION_API_URL: z.url(),
+  CLASSIFICATION_CACHE_TTL_SECONDS: z.coerce.number().default(60 * 60 * 24 * 7),
 });
 
 const parsed = envSchema.safeParse(process.env);
