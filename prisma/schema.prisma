@@ -15,6 +15,7 @@ datasource db {
 enum Role {
   ADMIN
   USER
+  NURSE
 }
 
 enum VisitLabel {
@@ -96,6 +97,10 @@ model User {
   chatSessions     ChatSession[]
 
   classification UserMaternalClassification?
+
+  userConsultation   ConsultationRoom?     @relation("UserConsultation")
+  nurseConsultations ConsultationRoom[]    @relation("NurseConsultation")
+  sentMessages       ConsultationMessage[]
 }
 
 // ─────────────────────────────────────────────
@@ -470,4 +475,37 @@ model ChatMessage {
   createdAt DateTime    @default(now())
 
   @@index([sessionId, createdAt])
+}
+
+model ConsultationRoom {
+  id      String @id @default(uuid())
+  userId  String @unique // 1 user = 1 nurse, permanent
+  user    User   @relation("UserConsultation", fields: [userId], references: [id], onDelete: Cascade)
+  nurseId String
+  nurse   User   @relation("NurseConsultation", fields: [nurseId], references: [id], onDelete: Cascade)
+
+  messages  ConsultationMessage[]
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  @@index([nurseId])
+}
+
+enum ConsultationSenderRole {
+  USER
+  NURSE
+}
+
+model ConsultationMessage {
+  id         String                 @id @default(uuid())
+  roomId     String
+  room       ConsultationRoom       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  senderId   String
+  sender     User                   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderRole ConsultationSenderRole
+  content    String                 @db.Text
+  readAt     DateTime? // null = belum dibaca lawan
+  createdAt  DateTime               @default(now())
+
+  @@index([roomId, createdAt])
 }

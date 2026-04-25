@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Role } from "../generated/prisma/enums";
 
 export const registerInputSchema = z.object({
   fullName: z.string().min(1).max(100),
@@ -26,7 +27,7 @@ export const userResponseSchema = z.object({
   fullName: z.string(),
   username: z.string(),
   email: z.email().min(1),
-  role: z.enum(["ADMIN", "USER"]),
+  role: z.enum(Role),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
