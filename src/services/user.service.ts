@@ -22,4 +22,17 @@ export const userService = {
   async deleteById(id: string) {
     await userRepository.deleteById(id);
   },
+
+  async getMeVisits(userId: string) {
+    const user = await userRepository.findMeWithVisits(userId);
+    if (!user) {
+      throw Object.assign(new Error("User not found"), { statusCode: 404 });
+    }
+
+    const { password, visits, ...safeUser } = user;
+    return {
+      user: safeUser,
+      visits,
+    };
+  },
 };

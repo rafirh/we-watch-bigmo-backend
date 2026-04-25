@@ -22,4 +22,9 @@ export const userController = {
     await userService.deleteById(request.params.id);
     return reply.code(204).send();
   },
+
+  async meVisits(request: FastifyRequest, reply: FastifyReply) {
+    const result = await userService.getMeVisits(request.user.sub);
+    return reply.send(result);
+  },
 };

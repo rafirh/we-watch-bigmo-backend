@@ -37,6 +37,32 @@ export const userRepository = {
     ]);
   },
 
+  findMeWithVisits(userId: string) {
+    return prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        userDetail: true,
+        obstetricHistory: true,
+        prePregnancyData: true,
+        medicalHistories: true,
+        visits: {
+          orderBy: { tanggalKunjungan: "desc" },
+          include: {
+            motherExamination: true,
+            fetalExamination: true,
+            labExamination: true,
+            fourTMonitoring: true,
+            supplementaryFood: true,
+            otherCondition: true,
+            followUpPlans: {
+              orderBy: { urutan: "asc" },
+            },
+          },
+        },
+      },
+    });
+  },
+
   deleteById(id: string) {
     return prisma.user.delete({ where: { id } });
   },
