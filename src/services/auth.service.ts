@@ -13,6 +13,13 @@ export const authService = {
       });
     }
 
+    const existingNik = await userRepository.findByNik(input.nik);
+    if (existingNik) {
+      throw Object.assign(new Error("NIK already in use"), {
+        statusCode: 409,
+      });
+    }
+
     const existingUsername = await userRepository.findByUsername(
       input.username,
     );
@@ -28,6 +35,7 @@ export const authService = {
       username: input.username,
       email: input.email,
       password: hashed,
+      nik: input.nik
     });
 
     return toUserResponse(user);

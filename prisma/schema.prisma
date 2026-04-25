@@ -17,14 +17,396 @@ enum Role {
   USER
 }
 
+enum VisitLabel {
+  K1M // Kunjungan pertama murni (≤12 minggu, wajib dokter + USG)
+  K1A // Kunjungan pertama akses (>12 minggu, terlambat ANC)
+  K2
+  K3
+  K4
+  K5
+  K6
+}
+
+enum Trimester {
+  TRIMESTER_1
+  TRIMESTER_2
+  TRIMESTER_3
+}
+
+enum ImmunizationStatus {
+  T0
+  T1
+  T2
+  T3
+  T4
+  T5
+}
+
+enum BloodType {
+  A
+  B
+  AB
+  O
+}
+
+enum Rhesus {
+  POSITIF
+  NEGATIF
+}
+
+enum HivResult {
+  REACTIVE
+  NON_REACTIVE
+  INDETERMINATE
+}
+
+enum SifiliResult {
+  REACTIVE
+  NON_REACTIVE
+}
+
+enum HepatitisBResult {
+  REACTIVE
+  NON_REACTIVE
+}
+
+// ─────────────────────────────────────────────
+// USER
+// User adalah ibu hamil itu sendiri
+// ─────────────────────────────────────────────
+
 model User {
   id       String @id @default(uuid())
+  nik      String @unique
   fullName String
   username String @unique
   email    String @unique
   password String
+  role     Role   @default(USER)
 
-  role Role @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userDetail       UserDetail?
+  obstetricHistory ObstetricHistory?
+  prePregnancyData PrePregnancyData?
+  medicalHistories MedicalHistory[]
+  visits           Visit[]
+}
+
+// ─────────────────────────────────────────────
+// USER DETAIL (Data Diri Lengkap Ibu Hamil)
+// One-to-one dengan User
+// ─────────────────────────────────────────────
+
+model UserDetail {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Identitas tambahan
+  noRekamMedis     String?   @unique
+  jenisKelamin     String    @default("Perempuan")
+  tempatLahir      String?
+  tanggalLahir     DateTime?
+  namaIbuKandung   String?
+  statusPernikahan String?
+  noTelepon        String?
+
+  // Alamat
+  jalan         String?
+  rt            String?
+  rw            String?
+  kelurahanKode String?
+  kecamatanKode String?
+  kotaKabupaten String?
+  kodeKota      String?
+  provinsi      String?
+  kodeProvinsi  String?
+  kodePos       String?
+  negara        String  @default("Indonesia")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// OBSTETRIC HISTORY (Riwayat Obstetri)
+// ─────────────────────────────────────────────
+
+model ObstetricHistory {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  gravida                    Int
+  partus                     Int
+  abortus                    Int
+  hpht                       DateTime // Hari Pertama Haid Terakhir
+  hplTaksiran                DateTime // Hari Perkiraan Lahir
+  jarakKehamilanBulan        Int?     // dalam bulan
+  jarakKehamilanInterpretasi String?  // "Aman" / "Berisiko"
+  jarakKehamilanKeterangan   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// PRE-PREGNANCY DATA (Data Pra Kehamilan)
+// ─────────────────────────────────────────────
+
+model PrePregnancyData {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  beratBadanKg        Float
+  tinggiBadanCm       Float
+  imt                 Float
+  imtInterpretasi     String? // Normal / Kurus / Gemuk / Obesitas
+  imtKeterangan       String?
+
+  targetKenaikanBbMin Float?
+  targetKenaikanBbMax Float?
+
+  imunisasiTtStatus ImmunizationStatus @default(T0)
+  merokok           Boolean            @default(false)
+  konsumsiAlkohol   Boolean            @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// MEDICAL HISTORY (Riwayat Penyakit)
+// ─────────────────────────────────────────────
+
+model MedicalHistory {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  kategori   String  // "penyakit_menular" | "penyakit_keluarga" | "komplikasi_kehamilan"
+  nama       String
+  kodeIcd10  String?
+  keterangan String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// VISIT (Kunjungan ANC)
+// ─────────────────────────────────────────────
+
+model Visit {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label               VisitLabel
+  keteranganLabel     String?
+  tanggalKunjungan    DateTime
+  trimester           Trimester
+  usiaKehamilanMinggu Int
+
+  faskes      String
+  pemeriksa   String
+  kesanKlinis String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  motherExamination MotherExamination?
+  fetalExamination  FetalExamination?
+  labExamination    LabExamination?
+  fourTMonitoring   FourTMonitoring?
+  supplementaryFood SupplementaryFood?
+  followUpPlans     FollowUpPlan[]
+  otherCondition    OtherCondition?
+}
+
+// ─────────────────────────────────────────────
+// MOTHER EXAMINATION (Pemeriksaan Ibu)
+// ─────────────────────────────────────────────
+
+model MotherExamination {
+  id      String @id @default(uuid())
+  visitId String @unique
+  visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  // Antropometri
+  beratBadanKg         Float
+  beratBadanKeterangan String?
+  lilaCm               Float
+  lilaInterpretasi     String? // Normal / KEK / Risiko KEK
+  lilaKeterangan       String?
+
+  // Tinggi Fundus Uteri
+  tinggiUteriCm           Float?
+  tinggiUteriInterpretasi String?
+  tinggiUteriKeterangan   String?
+
+  // Tanda Vital
+  tdSistolik             Int
+  tdDiastolik            Int
+  tdInterpretasi         String?
+  tdKeterangan           String?
+  nadi                   Int
+  nadiInterpretasi       String?
+  suhu                   Float
+  suhuInterpretasi       String?
+  pernapasan             Int
+  pernapasanInterpretasi String?
+
+  // Golongan Darah
+  golonganDarah BloodType?
+  rhesus        Rhesus?
+
+  // Pemeriksaan Fisik
+  konjungtiva String?
+  sklera      String?
+  leher       String?
+  gigiMulut   String?
+  tht         String?
+  dadaJantung String?
+  dadaParu    String?
+  perut       String?
+  tungkai     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// FETAL EXAMINATION (Pemeriksaan Janin)
+// ─────────────────────────────────────────────
+
+model FetalExamination {
+  id      String @id @default(uuid())
+  visitId String @unique
+  visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  djjBpm              Int?
+  djjInterpretasi     String?
+  djjKeterangan       String?
+
+  jumlahJanin             Int     @default(1)
+  presentasi              String?
+  kepalaThPap             String?
+  taksiranBeratJaninGram  Int?
+  taksiranBeratKeterangan String?
+
+  // USG Trimester 1 (khusus K1M)
+  usgGestationalSacCm  Float?
+  usgCrownRumpLengthCm Float?
+  usgLetakJanin        String?
+  usgKeterangan        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// LAB EXAMINATION / 10T (Pemeriksaan Lab)
+// ─────────────────────────────────────────────
+
+model LabExamination {
+  id      String @id @default(uuid())
+  visitId String @unique
+  visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  // Hemoglobin
+  hemoglobinGdL          Float?
+  hemoglobinInterpretasi String?
+  hemoglobinKeterangan   String?
+
+  // Skrining Infeksi
+  skriningHiv     HivResult?
+  skriningSifilis SifiliResult?
+  skriningHepB    HepatitisBResult?
+
+  // Metabolik
+  gulaDarahMgdL         Float?
+  gulaDarahInterpretasi String?
+  gulaDarahKeterangan   String?
+
+  // Urin
+  proteinUrinMgdL         Float?
+  proteinUrinInterpretasi String? // Negatif / Trace / +1 / +2 / +3
+  proteinUrinKeterangan   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// FOUR-T MONITORING (Pemantauan 4T)
+// ─────────────────────────────────────────────
+
+model FourTMonitoring {
+  id      String @id @default(uuid())
+  visitId String @unique
+  visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  terlaluMuda   Boolean @default(false) // usia < 21 tahun
+  terlaluTua    Boolean @default(false) // usia > 35 tahun
+  terlaluRapat  Boolean @default(false) // jarak kehamilan < 2 tahun
+  terlaluSering Boolean @default(false) // jumlah anak > 3
+  keterangan    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// SUPPLEMENTARY FOOD (Makanan Tambahan Ibu Hamil)
+// ─────────────────────────────────────────────
+
+model SupplementaryFood {
+  id      String @id @default(uuid())
+  visitId String @unique
+  visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  diberikanMt Boolean @default(false)
+  jenisMt     String? // "MT Lokal" / "MT Pabrikan"
+  keterangan  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// FOLLOW-UP PLAN (Rencana Tindak Lanjut)
+// ─────────────────────────────────────────────
+
+model FollowUpPlan {
+  id      String @id @default(uuid())
+  visitId String
+  visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  urutan     Int
+  keterangan String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// OTHER CONDITION (Kondisi Lainnya per Kunjungan)
+// ─────────────────────────────────────────────
+
+model OtherCondition {
+  id      String @id @default(uuid())
+  visitId String @unique
+  visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  disabilitas       Boolean @default(false)
+  ikutKelasIbuHamil Boolean @default(false)
+  keterangan        String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

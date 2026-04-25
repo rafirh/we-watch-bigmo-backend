@@ -10,6 +10,10 @@ export const userRepository = {
     return prisma.user.findUnique({ where: { email } });
   },
 
+  findByNik(nik: string) {
+    return prisma.user.findUnique({ where: { nik } });
+  },
+
   findByUsername(username: string) {
     return prisma.user.findUnique({ where: { username } });
   },
