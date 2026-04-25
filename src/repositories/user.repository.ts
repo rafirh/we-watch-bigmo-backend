@@ -127,6 +127,27 @@ export const userRepository = {
     });
   },
 
+  findLastVisitByUserId(userId: string) {
+    return prisma.visit.findFirst({
+      where: { userId },
+      orderBy: [
+        { tanggalKunjungan: "desc" },
+        { createdAt: "desc" },
+      ],
+      include: {
+        motherExamination: true,
+        fetalExamination: true,
+        labExamination: true,
+        fourTMonitoring: true,
+        supplementaryFood: true,
+        otherCondition: true,
+        followUpPlans: {
+          orderBy: { urutan: "asc" },
+        },
+      },
+    });
+  },
+
   updateMyProfile(userId: string, data: { fullName: string; username: string }) {
     return prisma.user.update({
       where: { id: userId },

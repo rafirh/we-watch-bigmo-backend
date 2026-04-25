@@ -55,6 +55,15 @@ export const userService = {
     return visit;
   },
 
+  async getLastVisit(userId: string) {
+    const visit = await userRepository.findLastVisitByUserId(userId);
+    if (!visit) {
+      throw Object.assign(new Error("Visit not found"), { statusCode: 404 });
+    }
+
+    return visit;
+  },
+
   async updateMyProfile(userId: string, input: UpdateMyProfileInput) {
     const currentUser = await userRepository.findById(userId);
     if (!currentUser) {
