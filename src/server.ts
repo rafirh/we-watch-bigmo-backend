@@ -1,13 +1,33 @@
-import app from "./app";
+import { buildApp } from "./app";
 import { env } from "./config/env";
+import { disconnectRedis } from "./config/redis";
+import { prisma } from "./config/prisma";
 
-const PORT = env.PORT || 3000;
+async function start() {
+  const app = await buildApp();
 
-app.listen({ port: PORT }, function (err, address) {
-  if (err) {
+  try {
+    await app.listen({ port: env.PORT, host: "0.0.0.0" });
+  } catch (err) {
     app.log.error(err);
     process.exit(1);
   }
 
-  app.log.info(`Server is now listening on ${address}`);
-});
+  const shutdown = async (signal: string) => {
+    app.log.info(`Received ${signal}, shutting down...`);
+    try {
+      await app.close();
+      await disconnectRedis();
+      await prisma.$disconnect();
+      process.exit(0);
+    } catch (err) {
+      app.log.error(err);
+      process.exit(1);
+    }
+  };
+
+  process.on("SIGINT", () => shutdown("SIGINT"));
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+}
+
+start();
