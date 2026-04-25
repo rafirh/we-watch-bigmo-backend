@@ -20,6 +20,7 @@ import { chatRoutes } from "./routes/chat.route";
 import { meRoutes } from "./routes/me.route";
 import { todoRoutes } from "./routes/todo.route";
 import { classificationRoutes } from "./routes/classification.route";
+import { conditionRoutes } from "./routes/condition.route";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -93,6 +94,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(authRoutes, { prefix: "/auth" });
   await app.register(userRoutes, { prefix: "/users" });
   await app.register(meRoutes, { prefix: "/me" });
+  await app.register(conditionRoutes, { prefix: "/conditions" });
   await app.register(todoRoutes, { prefix: "/todos" });
   await app.register(chatRoutes, { prefix: "/chat" });
   await app.register(classificationRoutes);
