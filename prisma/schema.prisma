@@ -94,6 +94,8 @@ model User {
   medicalHistories MedicalHistory[]
   visits           Visit[]
   chatSessions     ChatSession[]
+
+  classification UserMaternalClassification?
 }
 
 // ─────────────────────────────────────────────
@@ -198,6 +200,31 @@ model MedicalHistory {
   updatedAt DateTime @updatedAt
 }
 
+enum RiskLevel {
+  LOW_RISK
+  MID_RISK
+  HIGH_RISK
+}
+
+model UserMaternalClassification {
+  id      String @id @default(uuid())
+  userId  String @unique
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  visitId String @unique
+  visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  riskLevel   RiskLevel
+  explanation String?   @db.Text
+
+  // Snapshot probabilities dari ML API (opsional tapi berguna untuk audit)
+  probLowRisk  Float?
+  probMidRisk  Float?
+  probHighRisk Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // ─────────────────────────────────────────────
 // VISIT (Kunjungan ANC)
 // ─────────────────────────────────────────────
@@ -228,6 +255,8 @@ model Visit {
   supplementaryFood SupplementaryFood?
   followUpPlans     FollowUpPlan[]
   otherCondition    OtherCondition?
+
+  classification UserMaternalClassification?
 }
 
 // ─────────────────────────────────────────────
