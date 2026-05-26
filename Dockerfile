@@ -34,6 +34,7 @@ COPY --from=deps /app/src/generated ./src/generated
 COPY --from=builder /app/dist ./dist
 COPY package*.json ./
 COPY prisma ./prisma
+COPY prisma.config.ts ./
 
 EXPOSE 3000
 CMD ["node", "dist/server.js"]
