@@ -33,6 +33,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/src/generated ./src/generated
 COPY --from=builder /app/dist ./dist
 COPY package*.json ./
+COPY tsconfig.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 
