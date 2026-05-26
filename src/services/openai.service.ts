@@ -24,9 +24,27 @@ export const openaiService = {
         }),
       },
     );
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw Object.assign(
+        new Error(
+          `OpenAI request failed: ${response.status} ${response.statusText} - ${errorBody}`,
+        ),
+        { statusCode: 502 },
+      );
+    }
+
     const data = await response.json();
 
-    const reply = data.choices[0]?.message?.content;
+    const reply = data?.choices?.[0]?.message?.content;
+    if (!reply) {
+      throw Object.assign(
+        new Error(
+          `OpenAI returned no completion: ${JSON.stringify(data)}`,
+        ),
+        { statusCode: 502 },
+      );
+    }
 
     return reply;
   },
