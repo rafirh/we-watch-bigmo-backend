@@ -134,6 +134,8 @@ export const updateTodoStatusBodySchema = z.object({
 
 export const todoResponseSchema = followUpPlanSchema;
 
+export const currentTodosResponseSchema = z.array(todoResponseSchema);
+
 const visitWithRelationsSchema = z.object({
   id: z.string(),
   userId: z.string(),

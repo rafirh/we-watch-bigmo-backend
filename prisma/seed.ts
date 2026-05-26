@@ -5,10 +5,16 @@ import { hashPassword } from "../src/utils/password";
 
 const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
- 
+
 async function main() {
   console.log('🌱 Seeding ANC data...')
- 
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // USER 1 — Kunjungan sampai Trimester 3 (belum lengkap / on-going)
+  // HPHT: 1 Sep 2025 → HPL: 8 Jun 2026
+  // K1M (T1, 10 minggu) → K2 (T1, 13 minggu) → K3 (T2, 22 minggu)
+  // Saat ini ~34 minggu → masih menunggu K4–K6
+  // ─────────────────────────────────────────────────────────────────────────
   const user1 = await prisma.user.upsert({
     where: { nik: '3578012345678901' },
     update: {},
@@ -19,7 +25,7 @@ async function main() {
       email:    'siti.nurhaliza@example.com',
       password: await hashPassword('password123'),
       role:     'USER',
- 
+
       userDetail: {
         create: {
           noRekamMedis:     'RM-ANC-00001',
@@ -42,108 +48,110 @@ async function main() {
           negara:           'Indonesia',
         },
       },
- 
+
       obstetricHistory: {
         create: {
           gravida:                    2,
           partus:                     1,
           abortus:                    0,
-          hpht:                       new Date('2026-01-15'),
-          hplTaksiran:                new Date('2026-10-22'),
+          hpht:                       new Date('2025-09-01'),
+          hplTaksiran:                new Date('2026-06-08'),
           jarakKehamilanBulan:        36,
           jarakKehamilanInterpretasi: 'Aman',
           jarakKehamilanKeterangan:   'Jarak ≥24 bulan, tidak termasuk faktor risiko 4T',
         },
       },
- 
+
       prePregnancyData: {
         create: {
-          beratBadanKg:       55.0,
-          tinggiBadanCm:      160.0,
-          imt:                21.48,
-          imtInterpretasi:    'Normal',
-          imtKeterangan:      'IMT 18.5–24.9 — target kenaikan BB 11.5–16 kg',
+          beratBadanKg:        55.0,
+          tinggiBadanCm:       160.0,
+          imt:                 21.48,
+          imtInterpretasi:     'Normal',
+          imtKeterangan:       'IMT 18.5–24.9 — target kenaikan BB 11.5–16 kg',
           targetKenaikanBbMin: 11.5,
           targetKenaikanBbMax: 16.0,
-          imunisasiTtStatus:  'T3',
-          merokok:            false,
-          konsumsiAlkohol:    false,
+          imunisasiTtStatus:   'T3',
+          merokok:             false,
+          konsumsiAlkohol:     false,
         },
       },
- 
+
       visits: {
         create: [
+          // ── K1M: Trimester 1, usia kehamilan 10 minggu (3 Nov 2025) ──
           {
-            label:               'K2',
-            keteranganLabel:     'Kunjungan kedua — idealnya masih di trimester 1, mengikuti jadwal lanjutan setelah K1',
-            tanggalKunjungan:    new Date('2026-04-23T09:00:00+07:00'),
-            trimester:           'TRIMESTER_2',
-            usiaKehamilanMinggu: 14,
-            faskes:              'Puskesmas Manyar',
-            pemeriksa:           'Bidan Sri Wahyuni',
-            kesanKlinis:         'Kehamilan trimester 2 dengan kondisi ibu dan janin dalam batas normal. Tidak ada faktor risiko 4T. Hasil 10T bersih.',
- 
+            label:               'K1M',
+            keteranganLabel:     'Kunjungan pertama (murni) — dilakukan di trimester 1 (≤12 minggu), wajib oleh dokter dengan USG',
+            tanggalKunjungan:    new Date('2025-11-03T09:00:00+07:00'),
+            trimester:           'TRIMESTER_1',
+            usiaKehamilanMinggu: 10,
+            faskes:              'Puskesmas Manyar Surabaya',
+            pemeriksa:           'dr. Hendra Kusuma + Bidan Sri Wahyuni',
+            kesanKlinis:         'G2P1A0 hamil 10 minggu. Kondisi ibu baik, tidak ada faktor risiko 4T. LILA normal, Hb batas bawah normal. USG konfirmasi intrauteri, sesuai usia kehamilan.',
+
             motherExamination: {
               create: {
-                beratBadanKg:          58.0,
-                beratBadanKeterangan:  'Kenaikan 3.0 kg dari pra-hamil — sesuai target',
-                lilaCm:                25.0,
-                lilaInterpretasi:      'Normal',
-                lilaKeterangan:        'LILA ≥ 23.5 cm = status gizi baik',
-                tinggiUteriCm:         14.0,
-                tinggiUteriInterpretasi: 'Sesuai usia kehamilan',
-                tinggiUteriKeterangan:   'TFU ≈ usia kehamilan (cm)',
-                tdSistolik:            110,
-                tdDiastolik:           70,
-                tdInterpretasi:        'Normal',
-                tdKeterangan:          'TD < 140/90 mmHg',
-                nadi:                  80,
-                nadiInterpretasi:      'Normal',
-                suhu:                  36.6,
-                suhuInterpretasi:      'Normal',
-                pernapasan:            18,
+                beratBadanKg:           56.2,
+                beratBadanKeterangan:   'Kenaikan 1.2 kg dari pra-hamil — sesuai trimester 1',
+                lilaCm:                 25.5,
+                lilaInterpretasi:       'Normal',
+                lilaKeterangan:         'LILA ≥ 23.5 cm = status gizi baik',
+                tinggiUteriCm:          null,
+                tinggiUteriKeterangan:  'Belum dapat diperiksa — uterus masih di bawah simfisis pubis (trimester 1)',
+                tdSistolik:             110,
+                tdDiastolik:            70,
+                tdInterpretasi:         'Normal',
+                tdKeterangan:           'TD < 140/90 mmHg',
+                nadi:                   80,
+                nadiInterpretasi:       'Normal',
+                suhu:                   36.6,
+                suhuInterpretasi:       'Normal',
+                pernapasan:             18,
                 pernapasanInterpretasi: 'Normal',
-                golonganDarah:         'A',
-                rhesus:                'POSITIF',
-                konjungtiva:           'Normal (tidak anemis)',
-                sklera:                'Normal (tidak ikterik)',
-                leher:                 'Normal',
-                gigiMulut:             'Normal',
-                tht:                   'Normal',
-                dadaJantung:           'Normal',
-                dadaParu:              'Normal',
-                perut:                 'Normal',
-                tungkai:               'Normal (tidak edema)',
+                golonganDarah:          'A',
+                rhesus:                 'POSITIF',
+                konjungtiva:            'Normal (tidak anemis)',
+                sklera:                 'Normal (tidak ikterik)',
+                leher:                  'Normal',
+                gigiMulut:              'Normal',
+                tht:                    'Normal',
+                dadaJantung:            'Normal',
+                dadaParu:               'Normal',
+                perut:                  'Normal',
+                tungkai:                'Normal (tidak edema)',
               },
             },
- 
+
             fetalExamination: {
               create: {
-                djjBpm:          145,
-                djjInterpretasi: 'Normal',
-                djjKeterangan:   'Rentang normal 120–160 bpm',
-                jumlahJanin:     1,
-                presentasi:      'Belum dapat dinilai',
+                djjBpm:               null,
+                djjKeterangan:        'Belum rutin diperiksa — auskultasi DJJ umumnya mulai usia kehamilan 12 minggu (Doppler)',
+                jumlahJanin:          1,
+                usgGestationalSacCm:  3.5,
+                usgCrownRumpLengthCm: 3.3,
+                usgLetakJanin:        'Intrauteri',
+                usgKeterangan:        'USG oleh dokter sesuai protokol K1M — sesuai usia kehamilan 10 minggu',
               },
             },
- 
+
             labExamination: {
               create: {
-                hemoglobinGdL:          12.5,
-                hemoglobinInterpretasi: 'Normal',
-                hemoglobinKeterangan:   'Cut-off ibu hamil ≥ 11 g/dL',
-                skriningHiv:            'NON_REACTIVE',
-                skriningSifilis:        'NON_REACTIVE',
-                skriningHepB:           'NON_REACTIVE',
-                gulaDarahMgdL:          95,
-                gulaDarahInterpretasi:  'Normal',
-                gulaDarahKeterangan:    'Normal < 140 mg/dL',
-                proteinUrinMgdL:        0,
+                hemoglobinGdL:           11.3,
+                hemoglobinInterpretasi:  'Normal (batas bawah)',
+                hemoglobinKeterangan:    'Tepat di atas cut-off anemia (≥11 g/dL)',
+                skriningHiv:             'NON_REACTIVE',
+                skriningSifilis:         'NON_REACTIVE',
+                skriningHepB:            'NON_REACTIVE',
+                gulaDarahMgdL:           92,
+                gulaDarahInterpretasi:   'Normal',
+                gulaDarahKeterangan:     'Normal < 140 mg/dL',
+                proteinUrinMgdL:         0,
                 proteinUrinInterpretasi: 'Negatif',
                 proteinUrinKeterangan:   'Tidak ada proteinuria',
               },
             },
- 
+
             fourTMonitoring: {
               create: {
                 terlaluMuda:   false,
@@ -152,13 +160,196 @@ async function main() {
                 terlaluSering: false,
               },
             },
- 
+
+            otherCondition: {
+              create: {
+                disabilitas:       false,
+                ikutKelasIbuHamil: true,
+              },
+            },
+
             followUpPlans: {
               create: [
-                { urutan: 1, keterangan: 'Lanjut ANC rutin sesuai jadwal (K3 di trimester 2 lanjut)' },
-                { urutan: 2, keterangan: 'Suplementasi tablet tambah darah (Fe) 1 tablet/hari' },
-                { urutan: 3, keterangan: 'Edukasi gizi seimbang & tanda bahaya kehamilan' },
-                { urutan: 4, keterangan: 'USG rutin di K5 (trimester 3)' },
+                { urutan: 1, keterangan: 'Suplementasi tablet tambah darah (Fe) 1 tablet/hari + asam folat' },
+                { urutan: 2, keterangan: 'Edukasi tanda bahaya kehamilan trimester 1 (perdarahan, hiperemesis)' },
+                { urutan: 3, keterangan: 'Jadwalkan K2 di trimester 1 akhir (usia kehamilan 13 minggu)' },
+                { urutan: 4, keterangan: 'Lanjut kelas ibu hamil' },
+              ],
+            },
+          },
+
+          // ── K2: Trimester 1 akhir, usia kehamilan 13 minggu (24 Nov 2025) ──
+          {
+            label:               'K2',
+            keteranganLabel:     'Kunjungan kedua — idealnya di trimester 1, mengikuti jadwal lanjutan setelah K1M',
+            tanggalKunjungan:    new Date('2025-11-24T09:30:00+07:00'),
+            trimester:           'TRIMESTER_1',
+            usiaKehamilanMinggu: 13,
+            faskes:              'Puskesmas Manyar Surabaya',
+            pemeriksa:           'Bidan Sri Wahyuni',
+            kesanKlinis:         'G2P1A0 hamil 13 minggu. Trimester 1 berjalan baik. Mual-mual sudah berkurang. Tidak ada keluhan berarti. Kenaikan BB sesuai target.',
+
+            motherExamination: {
+              create: {
+                beratBadanKg:           57.0,
+                beratBadanKeterangan:   'Kenaikan 2.0 kg dari pra-hamil — sesuai target trimester 1',
+                lilaCm:                 25.5,
+                lilaInterpretasi:       'Normal',
+                lilaKeterangan:         'LILA ≥ 23.5 cm = status gizi baik',
+                tinggiUteriCm:          null,
+                tinggiUteriKeterangan:  'TFU mulai teraba di atas simfisis, namun belum diukur secara formal',
+                tdSistolik:             112,
+                tdDiastolik:            72,
+                tdInterpretasi:         'Normal',
+                tdKeterangan:           'TD < 140/90 mmHg',
+                nadi:                   82,
+                nadiInterpretasi:       'Normal',
+                suhu:                   36.5,
+                suhuInterpretasi:       'Normal',
+                pernapasan:             18,
+                pernapasanInterpretasi: 'Normal',
+                golonganDarah:          'A',
+                rhesus:                 'POSITIF',
+                konjungtiva:            'Normal (tidak anemis)',
+                sklera:                 'Normal (tidak ikterik)',
+                leher:                  'Normal',
+                gigiMulut:              'Normal',
+                tht:                    'Normal',
+                dadaJantung:            'Normal',
+                dadaParu:               'Normal',
+                perut:                  'Normal',
+                tungkai:                'Normal (tidak edema)',
+              },
+            },
+
+            fetalExamination: {
+              create: {
+                djjBpm:          156,
+                djjInterpretasi: 'Normal',
+                djjKeterangan:   'Rentang normal 120–160 bpm — mulai terdeteksi dengan Doppler',
+                jumlahJanin:     1,
+                presentasi:      'Belum dapat dinilai',
+              },
+            },
+
+            labExamination: {
+              create: {
+                hemoglobinGdL:           11.5,
+                hemoglobinInterpretasi:  'Normal',
+                hemoglobinKeterangan:    'Meningkat dari K1M — respon baik terhadap suplementasi Fe',
+                skriningHiv:             'NON_REACTIVE',
+                skriningSifilis:         'NON_REACTIVE',
+                skriningHepB:            'NON_REACTIVE',
+                gulaDarahMgdL:           90,
+                gulaDarahInterpretasi:   'Normal',
+                proteinUrinMgdL:         0,
+                proteinUrinInterpretasi: 'Negatif',
+              },
+            },
+
+            fourTMonitoring: {
+              create: {
+                terlaluMuda:   false,
+                terlaluTua:    false,
+                terlaluRapat:  false,
+                terlaluSering: false,
+              },
+            },
+
+            followUpPlans: {
+              create: [
+                { urutan: 1, keterangan: 'Lanjut suplementasi Fe 1 tablet/hari' },
+                { urutan: 2, keterangan: 'Jadwalkan K3 di trimester 2 (sekitar usia kehamilan 22 minggu)' },
+                { urutan: 3, keterangan: 'Edukasi gerakan janin dan nutrisi trimester 2' },
+              ],
+            },
+          },
+
+          // ── K3: Trimester 2, usia kehamilan 22 minggu (19 Jan 2026) ──
+          {
+            label:               'K3',
+            keteranganLabel:     'Kunjungan ketiga — idealnya di trimester 2',
+            tanggalKunjungan:    new Date('2026-01-19T10:00:00+07:00'),
+            trimester:           'TRIMESTER_2',
+            usiaKehamilanMinggu: 22,
+            faskes:              'Puskesmas Manyar Surabaya',
+            pemeriksa:           'Bidan Sri Wahyuni',
+            kesanKlinis:         'G2P1A0 hamil 22 minggu. Kondisi ibu dan janin dalam batas normal. DJJ baik. TFU sesuai usia kehamilan. Tidak ada keluhan signifikan.',
+
+            motherExamination: {
+              create: {
+                beratBadanKg:           59.5,
+                beratBadanKeterangan:   'Kenaikan 4.5 kg dari pra-hamil — sesuai target trimester 2',
+                lilaCm:                 25.5,
+                lilaInterpretasi:       'Normal',
+                lilaKeterangan:         'LILA ≥ 23.5 cm = status gizi baik',
+                tinggiUteriCm:          22.0,
+                tinggiUteriInterpretasi: 'Sesuai usia kehamilan',
+                tinggiUteriKeterangan:   'TFU ≈ usia kehamilan dalam cm (22 cm pada 22 minggu)',
+                tdSistolik:             110,
+                tdDiastolik:            70,
+                tdInterpretasi:         'Normal',
+                tdKeterangan:           'TD < 140/90 mmHg',
+                nadi:                   84,
+                nadiInterpretasi:       'Normal',
+                suhu:                   36.7,
+                suhuInterpretasi:       'Normal',
+                pernapasan:             18,
+                pernapasanInterpretasi: 'Normal',
+                golonganDarah:          'A',
+                rhesus:                 'POSITIF',
+                konjungtiva:            'Normal (tidak anemis)',
+                sklera:                 'Normal (tidak ikterik)',
+                leher:                  'Normal',
+                gigiMulut:              'Normal',
+                tht:                    'Normal',
+                dadaJantung:            'Normal',
+                dadaParu:               'Normal',
+                perut:                  'Normal',
+                tungkai:                'Normal (tidak edema)',
+              },
+            },
+
+            fetalExamination: {
+              create: {
+                djjBpm:          148,
+                djjInterpretasi: 'Normal',
+                djjKeterangan:   'Rentang normal 120–160 bpm',
+                jumlahJanin:     1,
+                presentasi:      'Belum dapat dinilai (mobilitas janin tinggi)',
+              },
+            },
+
+            labExamination: {
+              create: {
+                hemoglobinGdL:           12.0,
+                hemoglobinInterpretasi:  'Normal',
+                hemoglobinKeterangan:    'Hb baik — suplementasi Fe efektif',
+                skriningHiv:             'NON_REACTIVE',
+                skriningSifilis:         'NON_REACTIVE',
+                skriningHepB:            'NON_REACTIVE',
+                gulaDarahMgdL:           94,
+                gulaDarahInterpretasi:   'Normal',
+                proteinUrinMgdL:         0,
+                proteinUrinInterpretasi: 'Negatif',
+              },
+            },
+
+            fourTMonitoring: {
+              create: {
+                terlaluMuda:   false,
+                terlaluTua:    false,
+                terlaluRapat:  false,
+                terlaluSering: false,
+              },
+            },
+
+            followUpPlans: {
+              create: [
+                { urutan: 1, keterangan: 'Lanjut suplementasi Fe 1 tablet/hari' },
+                { urutan: 2, keterangan: 'Jadwalkan K4 di trimester 3 (sekitar usia kehamilan 28 minggu) — wajib dengan dokter dan USG' },
+                { urutan: 3, keterangan: 'Edukasi tanda bahaya trimester 2–3: preeklampsia, gerakan janin berkurang' },
+                { urutan: 4, keterangan: 'Mulai persiapan rencana persalinan' },
               ],
             },
           },
@@ -166,9 +357,14 @@ async function main() {
       },
     },
   })
- 
-  console.log(`✅ Pasien 1 — ${user1.fullName}`)
- 
+
+  console.log(`✅ Pasien 1 — ${user1.fullName} (K1M, K2, K3 — on-going trimester 3)`)
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // USER 2 — Kunjungan LENGKAP (K1M → K2 → K3 → K4 → K5 → K6)
+  // HPHT: 10 Jun 2025 → HPL: 17 Mar 2026
+  // Sudah menyelesaikan seluruh kunjungan ANC dan melahirkan
+  // ─────────────────────────────────────────────────────────────────────────
   const user2 = await prisma.user.upsert({
     where: { nik: '3515098765432101' },
     update: {},
@@ -179,13 +375,13 @@ async function main() {
       email:    'dewi.lestari@example.com',
       password: await hashPassword('password123'),
       role:     'USER',
- 
+
       userDetail: {
         create: {
           noRekamMedis:     'RM-ANC-00002',
           jenisKelamin:     'Perempuan',
           tempatLahir:      'Sidoarjo',
-          tanggalLahir:     new Date('2000-03-20'),
+          tanggalLahir:     new Date('1993-03-20'),
           namaIbuKandung:   'Sumiati',
           statusPernikahan: 'Menikah',
           noTelepon:        '081234567802',
@@ -202,603 +398,277 @@ async function main() {
           negara:           'Indonesia',
         },
       },
- 
+
       obstetricHistory: {
         create: {
-          gravida:      1,
-          partus:       0,
-          abortus:      0,
-          hpht:         new Date('2025-12-10'),
-          hplTaksiran:  new Date('2026-09-16'),
-        },
-      },
- 
-      prePregnancyData: {
-        create: {
-          beratBadanKg:        42.0,
-          tinggiBadanCm:       155.0,
-          imt:                 17.48,
-          imtInterpretasi:     'Kurus',
-          imtKeterangan:       'IMT < 18.5 — target kenaikan BB 12.5–18 kg',
-          targetKenaikanBbMin: 12.5,
-          targetKenaikanBbMax: 18.0,
-          imunisasiTtStatus:   'T2',
-          merokok:             false,
-          konsumsiAlkohol:     false,
-        },
-      },
- 
-      visits: {
-        create: [
-          {
-            label:               'K3',
-            keteranganLabel:     'Kunjungan ketiga — idealnya di trimester 2',
-            tanggalKunjungan:    new Date('2026-04-24T08:30:00+07:00'),
-            trimester:           'TRIMESTER_2',
-            usiaKehamilanMinggu: 19,
-            faskes:              'Puskesmas Sidoarjo Kota',
-            pemeriksa:           'Bidan Eka Pratiwi',
-            kesanKlinis:         'G1P0A0 hamil 19 minggu dengan KEK (LILA 22 cm) dan anemia ringan (Hb 10.5 g/dL). Tinggi fundus sedikit di bawah usia kehamilan, kemungkinan terkait status gizi.',
- 
-            motherExamination: {
-              create: {
-                beratBadanKg:           44.0,
-                beratBadanKeterangan:   'Kenaikan 2.0 kg dari pra-hamil — di bawah target ideal',
-                lilaCm:                 22.0,
-                lilaInterpretasi:       'Kurang Energi Kronis (KEK)',
-                lilaKeterangan:         'LILA < 23 cm — KEK',
-                tinggiUteriCm:          18.0,
-                tinggiUteriInterpretasi: 'Sedikit di bawah usia kehamilan',
-                tinggiUteriKeterangan:   'Konsisten dengan status gizi kurang',
-                tdSistolik:             100,
-                tdDiastolik:            65,
-                tdInterpretasi:         'Normal cenderung rendah',
-                nadi:                   75,
-                nadiInterpretasi:       'Normal',
-                suhu:                   36.5,
-                suhuInterpretasi:       'Normal',
-                pernapasan:             19,
-                pernapasanInterpretasi: 'Normal',
-                golonganDarah:          'O',
-                rhesus:                 'POSITIF',
-                konjungtiva:            'Tidak normal (anemis)',
-                sklera:                 'Normal',
-                leher:                  'Normal',
-                gigiMulut:              'Normal',
-                tht:                    'Normal',
-                dadaJantung:            'Normal',
-                dadaParu:               'Normal',
-                perut:                  'Normal',
-                tungkai:                'Normal',
-              },
-            },
- 
-            fetalExamination: {
-              create: {
-                djjBpm:          150,
-                djjInterpretasi: 'Normal',
-                jumlahJanin:     1,
-              },
-            },
- 
-            labExamination: {
-              create: {
-                hemoglobinGdL:           10.5,
-                hemoglobinInterpretasi:  'Anemia ringan',
-                hemoglobinKeterangan:    'Hb 10.0–10.9 g/dL = anemia ringan pada ibu hamil',
-                skriningHiv:             'NON_REACTIVE',
-                skriningSifilis:         'NON_REACTIVE',
-                skriningHepB:            'NON_REACTIVE',
-                gulaDarahMgdL:           88,
-                gulaDarahInterpretasi:   'Normal',
-                proteinUrinMgdL:         0,
-                proteinUrinInterpretasi: 'Negatif',
-              },
-            },
- 
-            fourTMonitoring: {
-              create: {
-                terlaluMuda:   false,
-                terlaluTua:    false,
-                terlaluRapat:  false,
-                terlaluSering: false,
-              },
-            },
- 
-            supplementaryFood: {
-              create: {
-                diberikanMt: true,
-                jenisMt:     'MT Lokal',
-                keterangan:  'Diberikan karena LILA < 23.5 cm (KEK)',
-              },
-            },
- 
-            followUpPlans: {
-              create: [
-                { urutan: 1, keterangan: 'Pemberian Makanan Tambahan (MT Lokal) selama minimal 90 hari' },
-                { urutan: 2, keterangan: 'Suplementasi Fe 2 tablet/hari (dosis anemia)' },
-                { urutan: 3, keterangan: 'Edukasi gizi seimbang dengan tinggi protein hewani' },
-                { urutan: 4, keterangan: 'Kontrol Hb ulang dalam 4 minggu' },
-                { urutan: 5, keterangan: 'Pantau kenaikan BB ketat tiap kunjungan' },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  })
- 
-  console.log(`✅ Pasien 2 — ${user2.fullName}`)
- 
-  const user3 = await prisma.user.upsert({
-    where: { nik: '3573011223344501' },
-    update: {},
-    create: {
-      nik:      '3573011223344501',
-      fullName: 'Ratna Kusuma Wardhani',
-      username: 'ratna.kusuma',
-      email:    'ratna.kusuma@example.com',
-      password: await hashPassword('password123'),
-      role:     'USER',
- 
-      userDetail: {
-        create: {
-          noRekamMedis:     'RM-ANC-00003',
-          jenisKelamin:     'Perempuan',
-          tempatLahir:      'Malang',
-          tanggalLahir:     new Date('1988-07-10'),
-          namaIbuKandung:   'Suciati Wardoyo',
-          statusPernikahan: 'Menikah',
-          noTelepon:        '081234567803',
-          jalan:            'Jl. Ijen Boulevard No. 27',
-          rt:               '002',
-          rw:               '004',
-          kelurahanKode:    '3573021003',
-          kecamatanKode:    '357302',
-          kotaKabupaten:    'Kota Malang',
-          kodeKota:         '3573',
-          provinsi:         'Jawa Timur',
-          kodeProvinsi:     '35',
-          kodePos:          '65112',
-          negara:           'Indonesia',
-        },
-      },
- 
-      obstetricHistory: {
-        create: {
-          gravida:                    4,
-          partus:                     3,
+          gravida:                    2,
+          partus:                     1,
           abortus:                    0,
-          hpht:                       new Date('2025-11-05'),
-          hplTaksiran:                new Date('2026-08-12'),
-          jarakKehamilanBulan:        48,
+          hpht:                       new Date('2025-06-10'),
+          hplTaksiran:                new Date('2026-03-17'),
+          jarakKehamilanBulan:        30,
           jarakKehamilanInterpretasi: 'Aman',
+          jarakKehamilanKeterangan:   'Jarak ≥24 bulan, tidak termasuk faktor risiko 4T',
         },
       },
- 
+
       prePregnancyData: {
         create: {
-          beratBadanKg:        68.0,
+          beratBadanKg:        58.0,
           tinggiBadanCm:       158.0,
-          imt:                 27.24,
-          imtInterpretasi:     'Gemuk',
-          imtKeterangan:       'IMT 25.0–29.9 — target kenaikan BB 7–11.5 kg',
-          targetKenaikanBbMin: 7.0,
-          targetKenaikanBbMax: 11.5,
-          imunisasiTtStatus:   'T5',
-          merokok:             false,
-          konsumsiAlkohol:     false,
-        },
-      },
- 
-      medicalHistories: {
-        create: [
-          {
-            kategori:  'penyakit_keluarga',
-            nama:      'Hipertensi (ibu kandung)',
-          },
-          {
-            kategori:   'komplikasi_kehamilan',
-            nama:       'Hipertensi gestasional',
-            kodeIcd10:  'O13',
-            keterangan: 'Hipertensi yang muncul setelah usia kehamilan 20 minggu',
-          },
-        ],
-      },
- 
-      visits: {
-        create: [
-          {
-            label:               'K4',
-            keteranganLabel:     'Kunjungan keempat — idealnya di trimester 3 awal',
-            tanggalKunjungan:    new Date('2026-04-25T10:00:00+07:00'),
-            trimester:           'TRIMESTER_3',
-            usiaKehamilanMinggu: 25,
-            faskes:              'RSUD Saiful Anwar Malang',
-            pemeriksa:           'dr. Anggi Permatasari, Sp.OG',
-            kesanKlinis:         'G4P3A0 hamil 25 minggu dengan hipertensi gestasional (TD 145/95) disertai proteinuria (+1) — curiga preeklampsia. Faktor risiko 4T: terlalu tua dan terlalu sering. Edema pretibial ringan.',
- 
-            motherExamination: {
-              create: {
-                beratBadanKg:           73.0,
-                beratBadanKeterangan:   'Kenaikan 5.0 kg dari pra-hamil',
-                lilaCm:                 26.0,
-                lilaInterpretasi:       'Normal',
-                tinggiUteriCm:          25.0,
-                tinggiUteriInterpretasi: 'Sesuai usia kehamilan',
-                tdSistolik:             145,
-                tdDiastolik:            95,
-                tdInterpretasi:         'Hipertensi',
-                tdKeterangan:           'TD ≥ 140/90 mmHg pada kehamilan > 20 minggu — hipertensi gestasional',
-                nadi:                   88,
-                nadiInterpretasi:       'Normal',
-                suhu:                   36.8,
-                suhuInterpretasi:       'Normal',
-                pernapasan:             20,
-                pernapasanInterpretasi: 'Normal',
-                golonganDarah:          'B',
-                rhesus:                 'POSITIF',
-                konjungtiva:            'Normal',
-                sklera:                 'Normal',
-                leher:                  'Normal',
-                gigiMulut:              'Normal',
-                tht:                    'Normal',
-                dadaJantung:            'Normal',
-                dadaParu:               'Normal',
-                perut:                  'Normal',
-                tungkai:                'Tidak normal — edema pretibial ringan (+)',
-              },
-            },
- 
-            fetalExamination: {
-              create: {
-                djjBpm:                  138,
-                djjInterpretasi:         'Normal',
-                jumlahJanin:             1,
-                presentasi:              'Presentasi Kepala',
-                kepalaThPap:             'Belum masuk panggul',
-                taksiranBeratJaninGram:  800,
-                taksiranBeratKeterangan: 'Sesuai usia kehamilan 25 minggu',
-              },
-            },
- 
-            labExamination: {
-              create: {
-                hemoglobinGdL:           11.0,
-                hemoglobinInterpretasi:  'Normal (batas bawah)',
-                skriningHiv:             'NON_REACTIVE',
-                skriningSifilis:         'NON_REACTIVE',
-                skriningHepB:            'NON_REACTIVE',
-                gulaDarahMgdL:           110,
-                gulaDarahInterpretasi:   'Normal',
-                proteinUrinMgdL:         30,
-                proteinUrinInterpretasi: 'Positif (+1)',
-                proteinUrinKeterangan:   'Proteinuria — bersamaan dengan hipertensi mengarah ke preeklampsia',
-              },
-            },
- 
-            fourTMonitoring: {
-              create: {
-                terlaluMuda:   false,
-                terlaluTua:    true,
-                terlaluRapat:  false,
-                terlaluSering: true,
-                keterangan:    'Memenuhi 2 dari 4 kriteria 4T',
-              },
-            },
- 
-            followUpPlans: {
-              create: [
-                { urutan: 1, keterangan: 'Rujuk ke SpOG untuk evaluasi preeklampsia' },
-                { urutan: 2, keterangan: 'Pemeriksaan lanjutan: protein urin 24 jam, fungsi ginjal (ureum/kreatinin), SGOT/SGPT, trombosit' },
-                { urutan: 3, keterangan: 'Bed rest miring kiri' },
-                { urutan: 4, keterangan: 'Pertimbangkan pemberian antihipertensi (metildopa/nifedipin) sesuai indikasi' },
-                { urutan: 5, keterangan: 'Diet rendah garam, tinggi protein' },
-                { urutan: 6, keterangan: 'ANC lebih sering — kontrol per 1–2 minggu' },
-                { urutan: 7, keterangan: 'Edukasi tanda bahaya preeklampsia berat' },
-                { urutan: 8, keterangan: 'Persalinan direncanakan di RS rujukan dengan fasilitas NICU' },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  })
- 
-  console.log(`✅ Pasien 3 — ${user3.fullName}`)
- 
-  const user4 = await prisma.user.upsert({
-    where: { nik: '3525055667788901' },
-    update: {},
-    create: {
-      nik:      '3525055667788901',
-      fullName: 'Putri Ayu Lestari',
-      username: 'putri.ayu',
-      email:    'putri.ayu@example.com',
-      password: await hashPassword('password123'),
-      role:     'USER',
- 
-      userDetail: {
-        create: {
-          noRekamMedis:     'RM-ANC-00004',
-          jenisKelamin:     'Perempuan',
-          tempatLahir:      'Gresik',
-          tanggalLahir:     new Date('2007-09-05'),
-          namaIbuKandung:   'Endang Suryani',
-          statusPernikahan: 'Menikah',
-          noTelepon:        '081234567804',
-          jalan:            'Jl. Veteran Gg. Mawar No. 3',
-          rt:               '004',
-          rw:               '001',
-          kelurahanKode:    '3525012001',
-          kecamatanKode:    '352501',
-          kotaKabupaten:    'Kab. Gresik',
-          kodeKota:         '3525',
-          provinsi:         'Jawa Timur',
-          kodeProvinsi:     '35',
-          kodePos:          '61121',
-          negara:           'Indonesia',
-        },
-      },
- 
-      obstetricHistory: {
-        create: {
-          gravida:     1,
-          partus:      0,
-          abortus:     0,
-          hpht:        new Date('2026-02-01'),
-          hplTaksiran: new Date('2026-11-08'),
-        },
-      },
- 
-      prePregnancyData: {
-        create: {
-          beratBadanKg:        48.0,
-          tinggiBadanCm:       152.0,
-          imt:                 20.78,
+          imt:                 23.24,
           imtInterpretasi:     'Normal',
           imtKeterangan:       'IMT 18.5–24.9 — target kenaikan BB 11.5–16 kg',
           targetKenaikanBbMin: 11.5,
           targetKenaikanBbMax: 16.0,
-          imunisasiTtStatus:   'T0',
+          imunisasiTtStatus:   'T4',
           merokok:             false,
           konsumsiAlkohol:     false,
         },
       },
- 
+
       visits: {
         create: [
+          // ── K1M: Trimester 1, usia kehamilan 9 minggu (11 Agu 2025) ──
           {
             label:               'K1M',
-            keteranganLabel:     'Kunjungan pertama (murni) — kunjungan pertama dilakukan di trimester 1 (≤12 minggu), wajib oleh dokter dengan USG',
-            tanggalKunjungan:    new Date('2026-04-22T14:00:00+07:00'),
+            keteranganLabel:     'Kunjungan pertama (murni) — dilakukan di trimester 1 (≤12 minggu), wajib oleh dokter dengan USG',
+            tanggalKunjungan:    new Date('2025-08-11T08:00:00+07:00'),
             trimester:           'TRIMESTER_1',
-            usiaKehamilanMinggu: 11,
-            faskes:              'Puskesmas Manyar Gresik',
-            pemeriksa:           'dr. Rini Kartika (Dokter Umum) + Bidan Lia',
-            kesanKlinis:         'G1P0A0 hamil 11 minggu, primigravida usia 18 tahun (terlalu muda). LILA borderline berisiko KEK. Belum pernah imunisasi TT (T0). Hb batas bawah normal.',
- 
+            usiaKehamilanMinggu: 9,
+            faskes:              'Puskesmas Sidoarjo Kota',
+            pemeriksa:           'dr. Rina Damayanti + Bidan Eka Pratiwi',
+            kesanKlinis:         'G2P1A0 hamil 9 minggu. Kondisi ibu baik, status gizi normal, tidak ada faktor risiko. USG konfirmasi intrauteri dan viabilitas janin.',
+
             motherExamination: {
               create: {
-                beratBadanKg:           49.0,
-                beratBadanKeterangan:   'Kenaikan 1.0 kg dari pra-hamil — sesuai trimester 1',
-                lilaCm:                 23.2,
-                lilaInterpretasi:       'Risiko Kurang Energi Kronis (KEK)',
-                lilaKeterangan:         'LILA 23 – <23.5 cm — zona berisiko KEK, perlu intervensi gizi dini',
+                beratBadanKg:           58.5,
+                beratBadanKeterangan:   'Kenaikan 0.5 kg dari pra-hamil — normal untuk trimester 1 awal',
+                lilaCm:                 27.0,
+                lilaInterpretasi:       'Normal',
+                lilaKeterangan:         'LILA ≥ 23.5 cm = status gizi baik',
                 tinggiUteriCm:          null,
-                tinggiUteriKeterangan:  'Belum dapat diperiksa — uterus masih di bawah simfisis pubis (trimester 1)',
-                tdSistolik:             105,
-                tdDiastolik:            68,
+                tinggiUteriKeterangan:  'Belum dapat diperiksa — uterus masih di bawah simfisis pubis',
+                tdSistolik:             115,
+                tdDiastolik:            75,
                 tdInterpretasi:         'Normal',
-                nadi:                   82,
+                tdKeterangan:           'TD < 140/90 mmHg',
+                nadi:                   80,
                 nadiInterpretasi:       'Normal',
-                suhu:                   36.7,
+                suhu:                   36.6,
                 suhuInterpretasi:       'Normal',
                 pernapasan:             18,
                 pernapasanInterpretasi: 'Normal',
-                golonganDarah:          'A',
+                golonganDarah:          'B',
                 rhesus:                 'POSITIF',
-                konjungtiva:            'Normal',
-                sklera:                 'Normal',
+                konjungtiva:            'Normal (tidak anemis)',
+                sklera:                 'Normal (tidak ikterik)',
                 leher:                  'Normal',
                 gigiMulut:              'Normal',
                 tht:                    'Normal',
                 dadaJantung:            'Normal',
                 dadaParu:               'Normal',
                 perut:                  'Normal',
-                tungkai:                'Normal',
+                tungkai:                'Normal (tidak edema)',
               },
             },
- 
+
             fetalExamination: {
               create: {
                 djjBpm:               null,
                 djjKeterangan:        'Belum rutin diperiksa — auskultasi DJJ umumnya mulai usia kehamilan 12 minggu (Doppler)',
                 jumlahJanin:          1,
-                usgGestationalSacCm:  4.2,
-                usgCrownRumpLengthCm: 4.5,
+                usgGestationalSacCm:  2.8,
+                usgCrownRumpLengthCm: 2.3,
                 usgLetakJanin:        'Intrauteri',
-                usgKeterangan:        'USG oleh dokter sesuai protokol K1M',
+                usgKeterangan:        'USG oleh dokter sesuai protokol K1M — janin viable, sesuai usia kehamilan 9 minggu',
               },
             },
- 
+
             labExamination: {
               create: {
-                hemoglobinGdL:           11.2,
-                hemoglobinInterpretasi:  'Normal (batas bawah)',
-                hemoglobinKeterangan:    'Tepat di atas cut-off anemia (≥11)',
+                hemoglobinGdL:           12.0,
+                hemoglobinInterpretasi:  'Normal',
+                hemoglobinKeterangan:    'Di atas cut-off anemia ibu hamil (≥11 g/dL)',
                 skriningHiv:             'NON_REACTIVE',
                 skriningSifilis:         'NON_REACTIVE',
                 skriningHepB:            'NON_REACTIVE',
-                gulaDarahMgdL:           92,
+                gulaDarahMgdL:           89,
                 gulaDarahInterpretasi:   'Normal',
+                gulaDarahKeterangan:     'Normal < 140 mg/dL',
                 proteinUrinMgdL:         0,
                 proteinUrinInterpretasi: 'Negatif',
+                proteinUrinKeterangan:   'Tidak ada proteinuria',
               },
             },
- 
+
             fourTMonitoring: {
               create: {
-                terlaluMuda:   true,
+                terlaluMuda:   false,
                 terlaluTua:    false,
                 terlaluRapat:  false,
                 terlaluSering: false,
-                keterangan:    'Memenuhi 1 kriteria 4T — terlalu muda (18 tahun)',
               },
             },
- 
+
             otherCondition: {
               create: {
                 disabilitas:       false,
                 ikutKelasIbuHamil: true,
               },
             },
- 
+
             followUpPlans: {
               create: [
-                { urutan: 1, keterangan: 'Mulai imunisasi TT — dijadwalkan TT1' },
-                { urutan: 2, keterangan: 'Suplementasi Fe profilaksis 1 tablet/hari' },
-                { urutan: 3, keterangan: 'Konseling gizi intensif untuk cegah KEK berkembang' },
-                { urutan: 4, keterangan: 'Wajib mengikuti kelas ibu hamil' },
-                { urutan: 5, keterangan: 'Edukasi tanda bahaya kehamilan, IMD, ASI eksklusif' },
-                { urutan: 6, keterangan: 'Dukungan psikososial — kehamilan remaja' },
-                { urutan: 7, keterangan: 'Kontrol K2 di trimester 1 (4 minggu lagi)' },
+                { urutan: 1, keterangan: 'Suplementasi tablet tambah darah (Fe) 1 tablet/hari + asam folat' },
+                { urutan: 2, keterangan: 'Edukasi tanda bahaya kehamilan trimester 1' },
+                { urutan: 3, keterangan: 'Jadwalkan K2 di trimester 1 (usia kehamilan 12–13 minggu)' },
+                { urutan: 4, keterangan: 'Ikut kelas ibu hamil' },
               ],
             },
           },
-        ],
-      },
-    },
-  })
- 
-  console.log(`✅ Pasien 4 — ${user4.fullName}`)
- 
-  const user5 = await prisma.user.upsert({
-    where: { nik: '3576099887766501' },
-    update: {},
-    create: {
-      nik:      '3576099887766501',
-      fullName: 'Maya Anggraeni Saputri',
-      username: 'maya.anggraeni',
-      email:    'maya.anggraeni@example.com',
-      password: await hashPassword('password123'),
-      role:     'USER',
- 
-      userDetail: {
-        create: {
-          noRekamMedis:     'RM-ANC-00005',
-          jenisKelamin:     'Perempuan',
-          tempatLahir:      'Mojokerto',
-          tanggalLahir:     new Date('1992-12-25'),
-          namaIbuKandung:   'Hartini Saputri',
-          statusPernikahan: 'Menikah',
-          noTelepon:        '081234567805',
-          jalan:            'Jl. Gajah Mada No. 88',
-          rt:               '005',
-          rw:               '003',
-          kelurahanKode:    '3576011005',
-          kecamatanKode:    '357601',
-          kotaKabupaten:    'Kota Mojokerto',
-          kodeKota:         '3576',
-          provinsi:         'Jawa Timur',
-          kodeProvinsi:     '35',
-          kodePos:          '61314',
-          negara:           'Indonesia',
-        },
-      },
- 
-      obstetricHistory: {
-        create: {
-          gravida:                    3,
-          partus:                     1,
-          abortus:                    1,
-          hpht:                       new Date('2025-10-20'),
-          hplTaksiran:                new Date('2026-07-27'),
-          jarakKehamilanBulan:        60,
-          jarakKehamilanInterpretasi: 'Aman',
-        },
-      },
- 
-      prePregnancyData: {
-        create: {
-          beratBadanKg:        78.0,
-          tinggiBadanCm:       162.0,
-          imt:                 29.72,
-          imtInterpretasi:     'Gemuk (borderline obesitas)',
-          imtKeterangan:       'IMT 25.0–29.9 — target kenaikan BB 7–11.5 kg — sangat dekat batas obesitas (≥30)',
-          targetKenaikanBbMin: 7.0,
-          targetKenaikanBbMax: 11.5,
-          imunisasiTtStatus:   'T4',
-          merokok:             false,
-          konsumsiAlkohol:     false,
-        },
-      },
- 
-      medicalHistories: {
-        create: [
+
+          // ── K2: Trimester 1, usia kehamilan 13 minggu (8 Sep 2025) ──
           {
-            kategori: 'penyakit_keluarga',
-            nama:     'Diabetes Mellitus tipe 2 (ayah kandung)',
-          },
-        ],
-      },
- 
-      visits: {
-        create: [
-          {
-            label:               'K5',
-            keteranganLabel:     'Kunjungan kelima — trimester 3, kembali wajib oleh dokter dengan USG untuk evaluasi menjelang persalinan',
-            tanggalKunjungan:    new Date('2026-04-25T11:30:00+07:00'),
-            trimester:           'TRIMESTER_3',
-            usiaKehamilanMinggu: 27,
-            faskes:              'RSUD Prof. Dr. Soekandar Mojokerto',
-            pemeriksa:           'dr. Bagus Wicaksono, Sp.OG',
-            kesanKlinis:         'G3P1A1 hamil 27 minggu dengan riwayat 1× abortus. IMT pra-hamil borderline obesitas. GDS 165 mg/dL — curiga Diabetes Mellitus Gestasional. TD pre-hipertensi 130/85. Riwayat keluarga DM (ayah).',
- 
+            label:               'K2',
+            keteranganLabel:     'Kunjungan kedua — idealnya masih di trimester 1, mengikuti jadwal lanjutan setelah K1M',
+            tanggalKunjungan:    new Date('2025-09-08T09:00:00+07:00'),
+            trimester:           'TRIMESTER_1',
+            usiaKehamilanMinggu: 13,
+            faskes:              'Puskesmas Sidoarjo Kota',
+            pemeriksa:           'Bidan Eka Pratiwi',
+            kesanKlinis:         'G2P1A0 hamil 13 minggu. Memasuki trimester 2. Kondisi baik, mual berkurang. Nafsu makan membaik. Kenaikan BB sesuai.',
+
             motherExamination: {
               create: {
-                beratBadanKg:           85.0,
-                beratBadanKeterangan:   'Kenaikan 7.0 kg dari pra-hamil — mendekati batas atas target (11.5 kg)',
-                lilaCm:                 28.0,
+                beratBadanKg:           59.5,
+                beratBadanKeterangan:   'Kenaikan 1.5 kg dari pra-hamil — normal untuk akhir trimester 1',
+                lilaCm:                 27.0,
                 lilaInterpretasi:       'Normal',
-                tinggiUteriCm:          27.0,
-                tinggiUteriInterpretasi: 'Sesuai usia kehamilan',
-                tdSistolik:             130,
-                tdDiastolik:            85,
-                tdInterpretasi:         'Pre-hipertensi',
-                tdKeterangan:           'Belum mencapai kriteria hipertensi (<140/90), tapi perlu monitor ketat',
-                nadi:                   90,
-                nadiInterpretasi:       'Normal (batas atas)',
-                suhu:                   36.9,
+                lilaKeterangan:         'LILA ≥ 23.5 cm = status gizi baik',
+                tinggiUteriCm:          null,
+                tinggiUteriKeterangan:  'TFU mulai teraba namun belum diukur formal',
+                tdSistolik:             110,
+                tdDiastolik:            70,
+                tdInterpretasi:         'Normal',
+                tdKeterangan:           'TD < 140/90 mmHg',
+                nadi:                   78,
+                nadiInterpretasi:       'Normal',
+                suhu:                   36.5,
                 suhuInterpretasi:       'Normal',
-                pernapasan:             19,
+                pernapasan:             18,
                 pernapasanInterpretasi: 'Normal',
-                golonganDarah:          'AB',
+                golonganDarah:          'B',
                 rhesus:                 'POSITIF',
-                konjungtiva:            'Normal',
-                sklera:                 'Normal',
+                konjungtiva:            'Normal (tidak anemis)',
+                sklera:                 'Normal (tidak ikterik)',
                 leher:                  'Normal',
                 gigiMulut:              'Normal',
                 tht:                    'Normal',
                 dadaJantung:            'Normal',
                 dadaParu:               'Normal',
                 perut:                  'Normal',
-                tungkai:                'Normal',
+                tungkai:                'Normal (tidak edema)',
               },
             },
- 
+
             fetalExamination: {
               create: {
-                djjBpm:                  142,
-                djjInterpretasi:         'Normal',
-                jumlahJanin:             1,
-                presentasi:              'Presentasi Kepala',
-                kepalaThPap:             'Belum masuk panggul',
-                taksiranBeratJaninGram:  1100,
-                taksiranBeratKeterangan: 'Sesuai usia kehamilan 27 minggu',
+                djjBpm:          152,
+                djjInterpretasi: 'Normal',
+                djjKeterangan:   'Rentang normal 120–160 bpm — pertama kali terdeteksi dengan Doppler',
+                jumlahJanin:     1,
+                presentasi:      'Belum dapat dinilai',
               },
             },
- 
+
+            labExamination: {
+              create: {
+                hemoglobinGdL:           12.2,
+                hemoglobinInterpretasi:  'Normal',
+                skriningHiv:             'NON_REACTIVE',
+                skriningSifilis:         'NON_REACTIVE',
+                skriningHepB:            'NON_REACTIVE',
+                gulaDarahMgdL:           91,
+                gulaDarahInterpretasi:   'Normal',
+                proteinUrinMgdL:         0,
+                proteinUrinInterpretasi: 'Negatif',
+              },
+            },
+
+            fourTMonitoring: {
+              create: {
+                terlaluMuda:   false,
+                terlaluTua:    false,
+                terlaluRapat:  false,
+                terlaluSering: false,
+              },
+            },
+
+            followUpPlans: {
+              create: [
+                { urutan: 1, keterangan: 'Lanjut suplementasi Fe 1 tablet/hari' },
+                { urutan: 2, keterangan: 'Jadwalkan K3 di trimester 2 (usia kehamilan 22 minggu)' },
+                { urutan: 3, keterangan: 'Edukasi nutrisi trimester 2 dan pola aktivitas' },
+              ],
+            },
+          },
+
+          // ── K3: Trimester 2, usia kehamilan 22 minggu (10 Nov 2025) ──
+          {
+            label:               'K3',
+            keteranganLabel:     'Kunjungan ketiga — idealnya di trimester 2',
+            tanggalKunjungan:    new Date('2025-11-10T08:30:00+07:00'),
+            trimester:           'TRIMESTER_2',
+            usiaKehamilanMinggu: 22,
+            faskes:              'Puskesmas Sidoarjo Kota',
+            pemeriksa:           'Bidan Eka Pratiwi',
+            kesanKlinis:         'G2P1A0 hamil 22 minggu. Trimester 2 berjalan baik. TFU sesuai usia kehamilan. Ibu aktif dan kondisi janin normal. Tidak ada keluhan.',
+
+            motherExamination: {
+              create: {
+                beratBadanKg:           63.0,
+                beratBadanKeterangan:   'Kenaikan 5.0 kg dari pra-hamil — sesuai target trimester 2',
+                lilaCm:                 27.0,
+                lilaInterpretasi:       'Normal',
+                lilaKeterangan:         'LILA ≥ 23.5 cm = status gizi baik',
+                tinggiUteriCm:          22.0,
+                tinggiUteriInterpretasi: 'Sesuai usia kehamilan',
+                tinggiUteriKeterangan:   'TFU ≈ usia kehamilan dalam cm',
+                tdSistolik:             112,
+                tdDiastolik:            72,
+                tdInterpretasi:         'Normal',
+                tdKeterangan:           'TD < 140/90 mmHg',
+                nadi:                   82,
+                nadiInterpretasi:       'Normal',
+                suhu:                   36.6,
+                suhuInterpretasi:       'Normal',
+                pernapasan:             18,
+                pernapasanInterpretasi: 'Normal',
+                golonganDarah:          'B',
+                rhesus:                 'POSITIF',
+                konjungtiva:            'Normal (tidak anemis)',
+                sklera:                 'Normal (tidak ikterik)',
+                leher:                  'Normal',
+                gigiMulut:              'Normal',
+                tht:                    'Normal',
+                dadaJantung:            'Normal',
+                dadaParu:               'Normal',
+                perut:                  'Normal',
+                tungkai:                'Normal (tidak edema)',
+              },
+            },
+
+            fetalExamination: {
+              create: {
+                djjBpm:          144,
+                djjInterpretasi: 'Normal',
+                djjKeterangan:   'Rentang normal 120–160 bpm',
+                jumlahJanin:     1,
+                presentasi:      'Belum dapat dinilai (mobilitas janin tinggi)',
+              },
+            },
+
             labExamination: {
               create: {
                 hemoglobinGdL:           11.8,
@@ -806,35 +676,307 @@ async function main() {
                 skriningHiv:             'NON_REACTIVE',
                 skriningSifilis:         'NON_REACTIVE',
                 skriningHepB:            'NON_REACTIVE',
-                gulaDarahMgdL:           165,
-                gulaDarahInterpretasi:   'Tinggi — curiga Diabetes Gestasional',
-                gulaDarahKeterangan:     'GDS ≥ 140 mg/dL pada ibu hamil indikasi pemeriksaan OGTT konfirmasi',
-                proteinUrinMgdL:         15,
-                proteinUrinInterpretasi: 'Trace',
-                proteinUrinKeterangan:   'Belum signifikan tapi perlu pantau (terutama bersama TD borderline)',
+                gulaDarahMgdL:           95,
+                gulaDarahInterpretasi:   'Normal',
+                proteinUrinMgdL:         0,
+                proteinUrinInterpretasi: 'Negatif',
               },
             },
- 
+
             fourTMonitoring: {
               create: {
                 terlaluMuda:   false,
                 terlaluTua:    false,
                 terlaluRapat:  false,
                 terlaluSering: false,
-                keterangan:    'Tidak memenuhi kriteria 4T, namun ada risiko metabolik lain',
               },
             },
- 
+
             followUpPlans: {
               create: [
-                { urutan: 1, keterangan: 'Rujuk untuk pemeriksaan OGTT (Tes Toleransi Glukosa Oral) — konfirmasi GDM' },
-                { urutan: 2, keterangan: 'Konsultasi internis/SpPD endokrin jika OGTT positif' },
-                { urutan: 3, keterangan: 'Konsultasi gizi: diet diabetes kehamilan (DM-G)' },
-                { urutan: 4, keterangan: 'Pantau gerak janin harian' },
-                { urutan: 5, keterangan: 'Pantau TD ketat — minimal tiap 2 minggu' },
-                { urutan: 6, keterangan: 'USG biometri janin dan estimasi cairan ketuban' },
-                { urutan: 7, keterangan: 'Edukasi tanda bahaya: preeklampsia & makrosomia' },
-                { urutan: 8, keterangan: 'Persalinan direncanakan di RS dengan fasilitas perinatologi' },
+                { urutan: 1, keterangan: 'Lanjut suplementasi Fe 1 tablet/hari' },
+                { urutan: 2, keterangan: 'Jadwalkan K4 di trimester 3 (usia kehamilan 28 minggu) — wajib dokter dengan USG' },
+                { urutan: 3, keterangan: 'Edukasi tanda bahaya trimester 3 dan persiapan persalinan' },
+              ],
+            },
+          },
+
+          // ── K4: Trimester 3 awal, usia kehamilan 28 minggu (22 Des 2025) ──
+          {
+            label:               'K4',
+            keteranganLabel:     'Kunjungan keempat — idealnya di trimester 3 awal, wajib oleh dokter dengan USG',
+            tanggalKunjungan:    new Date('2025-12-22T09:00:00+07:00'),
+            trimester:           'TRIMESTER_3',
+            usiaKehamilanMinggu: 28,
+            faskes:              'Klinik Pratama Bunda Sidoarjo',
+            pemeriksa:           'dr. Andhika Prasetyo, Sp.OG',
+            kesanKlinis:         'G2P1A0 hamil 28 minggu. Memasuki trimester 3. Kondisi ibu dan janin baik. TFU sesuai. Presentasi kepala belum engage. USG biometri janin normal.',
+
+            motherExamination: {
+              create: {
+                beratBadanKg:           65.5,
+                beratBadanKeterangan:   'Kenaikan 7.5 kg dari pra-hamil — sesuai target trimester 3',
+                lilaCm:                 27.0,
+                lilaInterpretasi:       'Normal',
+                lilaKeterangan:         'LILA ≥ 23.5 cm = status gizi baik',
+                tinggiUteriCm:          28.0,
+                tinggiUteriInterpretasi: 'Sesuai usia kehamilan',
+                tinggiUteriKeterangan:   'TFU ≈ usia kehamilan dalam cm',
+                tdSistolik:             118,
+                tdDiastolik:            76,
+                tdInterpretasi:         'Normal',
+                tdKeterangan:           'TD < 140/90 mmHg',
+                nadi:                   84,
+                nadiInterpretasi:       'Normal',
+                suhu:                   36.7,
+                suhuInterpretasi:       'Normal',
+                pernapasan:             19,
+                pernapasanInterpretasi: 'Normal',
+                golonganDarah:          'B',
+                rhesus:                 'POSITIF',
+                konjungtiva:            'Normal (tidak anemis)',
+                sklera:                 'Normal (tidak ikterik)',
+                leher:                  'Normal',
+                gigiMulut:              'Normal',
+                tht:                    'Normal',
+                dadaJantung:            'Normal',
+                dadaParu:               'Normal',
+                perut:                  'Normal',
+                tungkai:                'Normal (tidak edema)',
+              },
+            },
+
+            fetalExamination: {
+              create: {
+                djjBpm:                  140,
+                djjInterpretasi:         'Normal',
+                djjKeterangan:           'Rentang normal 120–160 bpm',
+                jumlahJanin:             1,
+                presentasi:              'Presentasi Kepala',
+                kepalaThPap:             'Belum masuk panggul',
+                taksiranBeratJaninGram:  1100,
+                taksiranBeratKeterangan: 'Sesuai usia kehamilan 28 minggu (USG biometri)',
+              },
+            },
+
+            labExamination: {
+              create: {
+                hemoglobinGdL:           11.5,
+                hemoglobinInterpretasi:  'Normal',
+                skriningHiv:             'NON_REACTIVE',
+                skriningSifilis:         'NON_REACTIVE',
+                skriningHepB:            'NON_REACTIVE',
+                gulaDarahMgdL:           98,
+                gulaDarahInterpretasi:   'Normal',
+                proteinUrinMgdL:         0,
+                proteinUrinInterpretasi: 'Negatif',
+              },
+            },
+
+            fourTMonitoring: {
+              create: {
+                terlaluMuda:   false,
+                terlaluTua:    false,
+                terlaluRapat:  false,
+                terlaluSering: false,
+              },
+            },
+
+            followUpPlans: {
+              create: [
+                { urutan: 1, keterangan: 'Lanjut suplementasi Fe 1 tablet/hari' },
+                { urutan: 2, keterangan: 'Pantau gerak janin harian (minimal 10 gerakan/12 jam)' },
+                { urutan: 3, keterangan: 'Jadwalkan K5 (usia kehamilan 34–36 minggu) — wajib dokter + USG evaluasi' },
+                { urutan: 4, keterangan: 'Mulai diskusi rencana persalinan: normal atau SC, tempat bersalin' },
+                { urutan: 5, keterangan: 'Edukasi tanda-tanda persalinan dan kapan harus ke RS' },
+              ],
+            },
+          },
+
+          // ── K5: Trimester 3 lanjut, usia kehamilan 34 minggu (26 Jan 2026) ──
+          {
+            label:               'K5',
+            keteranganLabel:     'Kunjungan kelima — trimester 3, evaluasi menjelang persalinan oleh dokter dengan USG',
+            tanggalKunjungan:    new Date('2026-01-26T10:00:00+07:00'),
+            trimester:           'TRIMESTER_3',
+            usiaKehamilanMinggu: 34,
+            faskes:              'Klinik Pratama Bunda Sidoarjo',
+            pemeriksa:           'dr. Andhika Prasetyo, Sp.OG',
+            kesanKlinis:         'G2P1A0 hamil 34 minggu. Presentasi kepala sudah mengarah masuk panggul. Kondisi ibu dan janin sangat baik. USG taksiran BB janin sesuai. Siap menuju persalinan.',
+
+            motherExamination: {
+              create: {
+                beratBadanKg:           69.0,
+                beratBadanKeterangan:   'Kenaikan 11.0 kg dari pra-hamil — dalam target ideal (11.5–16 kg)',
+                lilaCm:                 27.0,
+                lilaInterpretasi:       'Normal',
+                lilaKeterangan:         'LILA ≥ 23.5 cm = status gizi baik',
+                tinggiUteriCm:          33.0,
+                tinggiUteriInterpretasi: 'Sedikit di bawah usia kehamilan',
+                tinggiUteriKeterangan:   'TFU 33 cm pada 34 minggu — masih dalam batas normal (±2 cm)',
+                tdSistolik:             120,
+                tdDiastolik:            78,
+                tdInterpretasi:         'Normal',
+                tdKeterangan:           'TD < 140/90 mmHg',
+                nadi:                   86,
+                nadiInterpretasi:       'Normal',
+                suhu:                   36.8,
+                suhuInterpretasi:       'Normal',
+                pernapasan:             19,
+                pernapasanInterpretasi: 'Normal',
+                golonganDarah:          'B',
+                rhesus:                 'POSITIF',
+                konjungtiva:            'Normal (tidak anemis)',
+                sklera:                 'Normal (tidak ikterik)',
+                leher:                  'Normal',
+                gigiMulut:              'Normal',
+                tht:                    'Normal',
+                dadaJantung:            'Normal',
+                dadaParu:               'Normal',
+                perut:                  'Normal',
+                tungkai:                'Normal — edema minimal fisiologis (+)',
+              },
+            },
+
+            fetalExamination: {
+              create: {
+                djjBpm:                  138,
+                djjInterpretasi:         'Normal',
+                djjKeterangan:           'Rentang normal 120–160 bpm',
+                jumlahJanin:             1,
+                presentasi:              'Presentasi Kepala',
+                kepalaThPap:             'Mulai masuk panggul (engagement awal)',
+                taksiranBeratJaninGram:  2350,
+                taksiranBeratKeterangan: 'Sesuai usia kehamilan 34 minggu (USG biometri)',
+              },
+            },
+
+            labExamination: {
+              create: {
+                hemoglobinGdL:           11.2,
+                hemoglobinInterpretasi:  'Normal (batas bawah)',
+                hemoglobinKeterangan:    'Sedikit menurun — hemodilusi trimester 3, masih dalam batas normal',
+                skriningHiv:             'NON_REACTIVE',
+                skriningSifilis:         'NON_REACTIVE',
+                skriningHepB:            'NON_REACTIVE',
+                gulaDarahMgdL:           102,
+                gulaDarahInterpretasi:   'Normal',
+                proteinUrinMgdL:         0,
+                proteinUrinInterpretasi: 'Negatif',
+              },
+            },
+
+            fourTMonitoring: {
+              create: {
+                terlaluMuda:   false,
+                terlaluTua:    false,
+                terlaluRapat:  false,
+                terlaluSering: false,
+              },
+            },
+
+            followUpPlans: {
+              create: [
+                { urutan: 1, keterangan: 'Lanjut Fe 1 tablet/hari hingga persalinan' },
+                { urutan: 2, keterangan: 'Pantau gerak janin harian' },
+                { urutan: 3, keterangan: 'Jadwalkan K6 (usia kehamilan 38 minggu) — evaluasi akhir pra-persalinan' },
+                { urutan: 4, keterangan: 'Finalisasi rencana persalinan — persalinan normal di klinik atau RS' },
+                { urutan: 5, keterangan: 'Edukasi IMD, ASI eksklusif, dan perawatan bayi baru lahir' },
+              ],
+            },
+          },
+
+          // ── K6: Trimester 3 akhir, usia kehamilan 38 minggu (23 Feb 2026) ──
+          {
+            label:               'K6',
+            keteranganLabel:     'Kunjungan keenam — evaluasi akhir pra-persalinan, wajib oleh dokter dengan USG',
+            tanggalKunjungan:    new Date('2026-02-23T09:30:00+07:00'),
+            trimester:           'TRIMESTER_3',
+            usiaKehamilanMinggu: 38,
+            faskes:              'RSUD Sidoarjo',
+            pemeriksa:           'dr. Andhika Prasetyo, Sp.OG',
+            kesanKlinis:         'G2P1A0 hamil 38 minggu aterm. Presentasi kepala sudah fully engaged. Kondisi ibu prima, janin sehat. Siap persalinan pervaginam. Tidak ada indikasi SC. Persalinan spontan berlangsung 2 hari kemudian (25 Feb 2026), lahir bayi perempuan 3.200 gram, AS 8/9.',
+
+            motherExamination: {
+              create: {
+                beratBadanKg:           72.0,
+                beratBadanKeterangan:   'Kenaikan 14.0 kg dari pra-hamil — dalam target ideal (11.5–16 kg)',
+                lilaCm:                 27.5,
+                lilaInterpretasi:       'Normal',
+                lilaKeterangan:         'LILA ≥ 23.5 cm = status gizi baik',
+                tinggiUteriCm:          36.0,
+                tinggiUteriInterpretasi: 'Sesuai usia kehamilan aterm',
+                tinggiUteriKeterangan:   'TFU 36 cm pada 38 minggu — normal (kepala sudah turun)',
+                tdSistolik:             118,
+                tdDiastolik:            76,
+                tdInterpretasi:         'Normal',
+                tdKeterangan:           'TD < 140/90 mmHg',
+                nadi:                   84,
+                nadiInterpretasi:       'Normal',
+                suhu:                   36.7,
+                suhuInterpretasi:       'Normal',
+                pernapasan:             20,
+                pernapasanInterpretasi: 'Normal',
+                golonganDarah:          'B',
+                rhesus:                 'POSITIF',
+                konjungtiva:            'Normal (tidak anemis)',
+                sklera:                 'Normal (tidak ikterik)',
+                leher:                  'Normal',
+                gigiMulut:              'Normal',
+                tht:                    'Normal',
+                dadaJantung:            'Normal',
+                dadaParu:               'Normal',
+                perut:                  'Normal',
+                tungkai:                'Normal — edema fisiologis minimal',
+              },
+            },
+
+            fetalExamination: {
+              create: {
+                djjBpm:                  136,
+                djjInterpretasi:         'Normal',
+                djjKeterangan:           'Rentang normal 120–160 bpm',
+                jumlahJanin:             1,
+                presentasi:              'Presentasi Kepala',
+                kepalaThPap:             'Sudah masuk panggul (fully engaged)',
+                taksiranBeratJaninGram:  3200,
+                taksiranBeratKeterangan: 'Sesuai usia kehamilan 38 minggu (USG biometri) — terkonfirmasi dengan BB lahir 3.200 gram',
+              },
+            },
+
+            labExamination: {
+              create: {
+                hemoglobinGdL:           11.0,
+                hemoglobinInterpretasi:  'Normal (batas bawah)',
+                hemoglobinKeterangan:    'Hemodilusi trimester 3 — masih di atas cut-off anemia',
+                skriningHiv:             'NON_REACTIVE',
+                skriningSifilis:         'NON_REACTIVE',
+                skriningHepB:            'NON_REACTIVE',
+                gulaDarahMgdL:           98,
+                gulaDarahInterpretasi:   'Normal',
+                proteinUrinMgdL:         0,
+                proteinUrinInterpretasi: 'Negatif',
+                proteinUrinKeterangan:   'Tidak ada tanda preeklampsia',
+              },
+            },
+
+            fourTMonitoring: {
+              create: {
+                terlaluMuda:   false,
+                terlaluTua:    false,
+                terlaluRapat:  false,
+                terlaluSering: false,
+              },
+            },
+
+            followUpPlans: {
+              create: [
+                { urutan: 1, keterangan: 'Rencanakan persalinan pervaginam di RSUD Sidoarjo' },
+                { urutan: 2, keterangan: 'Edukasi tanda-tanda inpartu: kontraksi teratur, lendir darah, ketuban pecah' },
+                { urutan: 3, keterangan: 'Segera ke IGD jika ketuban pecah atau gerakan janin berkurang' },
+                { urutan: 4, keterangan: 'Edukasi IMD segera setelah lahir dan ASI eksklusif 6 bulan' },
+                { urutan: 5, keterangan: 'Pastikan pendampingan suami/keluarga saat persalinan' },
+                { urutan: 6, keterangan: 'Kunjungan nifas terjadwal: 6 jam, 6 hari, 2 minggu, 6 minggu post-partum' },
               ],
             },
           },
@@ -842,9 +984,9 @@ async function main() {
       },
     },
   })
- 
-  console.log(`✅ Pasien 5 — ${user5.fullName}`)
- 
+
+  console.log(`✅ Pasien 2 — ${user2.fullName} (K1M → K2 → K3 → K4 → K5 → K6 — LENGKAP)`)
+
   const admin = await prisma.user.upsert({
     where: { email: 'admin@anc.com' },
     update: {},
@@ -857,11 +999,40 @@ async function main() {
       role:     'ADMIN',
     },
   })
- 
+
   console.log(`✅ Admin — ${admin.fullName}`)
+
+  const nurses = [
+    {
+      nik: '3578124501980001',
+      fullName: 'Siti Aminah',
+      username: 'siti.aminah',
+      email: 'siti.aminah@anc.com',
+    },
+    {
+      nik: '3578124601990002',
+      fullName: 'Budi Santoso',
+      username: 'budi.santoso',
+      email: 'budi.santoso@anc.com',
+    },
+  ]
+
+  for (const nurse of nurses) {
+    const created = await prisma.user.upsert({
+      where: { email: nurse.email },
+      update: {},
+      create: {
+        ...nurse,
+        password: await hashPassword('nurse123'),
+        role: 'NURSE',
+      },
+    })
+
+    console.log(`✅ Nurse — ${created.fullName}`)
+  }
   console.log('\n🎉 Seeding selesai!')
 }
- 
+
 main()
   .catch((e) => {
     console.error('❌ Seeding gagal:', e)
@@ -870,4 +1041,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect()
   })
- 

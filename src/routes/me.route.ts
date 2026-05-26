@@ -9,10 +9,37 @@ import {
   meVisitsResponseSchema,
   visitIdParamSchema,
   visitDetailResponseSchema,
+  currentTodosResponseSchema,
 } from "../models/visit.model";
 
 export async function meRoutes(app: FastifyInstance) {
   const r = app.withTypeProvider<ZodTypeProvider>();
+
+  r.get(
+    "/last-visit",
+    {
+      onRequest: [app.authenticate],
+      schema: {
+        tags: ["Users"],
+        security: [{ bearerAuth: [] }],
+        response: { 200: visitDetailResponseSchema },
+      },
+    },
+    userController.getLastVisit,
+  );
+
+  r.get(
+    "/current-todos",
+    {
+      onRequest: [app.authenticate],
+      schema: {
+        tags: ["Users"],
+        security: [{ bearerAuth: [] }],
+        response: { 200: currentTodosResponseSchema },
+      },
+    },
+    userController.getCurrentTodos,
+  );
 
   r.get(
     "/visits",
