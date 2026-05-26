@@ -37,5 +37,7 @@ COPY tsconfig.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 
+RUN npm install --no-save tsx
+
 EXPOSE 3000
 CMD ["node", "dist/server.js"]
