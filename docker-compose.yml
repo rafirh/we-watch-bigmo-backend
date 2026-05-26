@@ -10,6 +10,8 @@ services:
     env_file:
       - .env
     environment:
+      APP_ENV: production
+      NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-narabuna}?schema=public
       REDIS_URL: redis://redis:6379
     depends_on:
